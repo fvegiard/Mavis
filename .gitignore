@@ -1,3 +1,6 @@
 data/mavis_knowledge_cache.json
 data/cost_log.json
 .env
+a2a/outbox.jsonl
+a2a/inbox.jsonl
+credentials.env

@@ -4,3 +4,7 @@
 {"trace_id": "1b1996e5-e51a-4bdc-a489-db4d9fa779a1", "from": "Mavis", "to": "MaxClaw", "action": "notify", "payload": {"msg": "test"}, "timestamp": "2026-08-04T05:35:21.204274+00:00", "status": "pending"}
 {"trace_id": "0be4f558-df22-423e-9032-a23bab3aab1d", "from": "Mavis", "to": "all", "action": "notify", "payload": {"msg": "test"}, "timestamp": "2026-08-04T05:35:21.349239+00:00", "status": "pending"}
 {"trace_id": "50b25ac3-ebca-4087-9038-a13ca986460d", "from": "Mavis", "to": "test-agent", "action": "notify", "payload": {"ok": true}, "timestamp": "2026-08-04T05:36:30.096521+00:00", "status": "pending"}
+{"trace_id": "92479bc0-5c74-4fa6-ba85-a9ef227376ac", "from": "Mavis", "to": "Mavis", "action": "notify", "payload": {"test": true}, "timestamp": "2026-08-04T10:11:31.494798+00:00", "status": "pending"}
+{"trace_id": "10259ec7-b725-4a07-ac58-657ba0fb8376", "from": "Mavis", "to": "MaxHermes", "action": "notify", "payload": {"test": true}, "timestamp": "2026-08-04T10:11:31.663564+00:00", "status": "pending"}
+{"trace_id": "50d46ad6-69f4-4587-a843-2cb0ba556efa", "from": "Mavis", "to": "MaxClaw", "action": "notify", "payload": {"test": true}, "timestamp": "2026-08-04T10:11:31.799198+00:00", "status": "pending"}
+{"trace_id": "656b986e-2964-4701-b738-6e90bbad9a68", "from": "Mavis", "to": "all", "action": "notify", "payload": {"test": true}, "timestamp": "2026-08-04T10:11:31.940524+00:00", "status": "pending"}

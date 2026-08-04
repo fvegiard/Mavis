@@ -82,6 +82,25 @@ PROVIDERS = {
         "priority": 3,
         "context_window": 131_000,
     },
+    "openrouter-free": {
+        "name": "OpenRouter FREE tier (no cost, 6+ models)",
+        "env_key": "OPENROUTER_API_KEY",
+        "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+        "auth_header": "Bearer {key}",
+        "format": "openai",
+        "models": [
+            # All confirmed working 2026-08-04
+            "nvidia/nemotron-3-ultra-550b-a55b:free",     # 1M context!
+            "nvidia/nemotron-3-super-120b-a12b:free",     # 262K
+            "google/gemma-4-31b-it:free",                 # 262K
+            "google/gemma-4-26b-a4b-it:free",             # 131K
+            "inclusionai/ling-3.0-flash:free",            # 262K, fast
+            "cohere/north-mini-code:free",                # 256K
+            "nvidia/nemotron-nano-9b-v2:free",            # 128K
+        ],
+        "priority": 0,  # HIGHEST (no cost!)
+        "context_window": 1_000_000,
+    },
     "openrouter": {
         "name": "OpenRouter (multi-model)",
         "env_key": "OPENROUTER_API_KEY",
@@ -89,11 +108,20 @@ PROVIDERS = {
         "auth_header": "Bearer {key}",
         "format": "openai",
         "models": [
+            # Paid
             "openai/gpt-4o-mini", "openai/gpt-4o", "anthropic/claude-sonnet-5",
             "google/gemini-2.5-pro", "meta-llama/llama-3.3-70b",
+            # FREE (2026-08-04, confirmed working)
+            "nvidia/nemotron-3-ultra-550b-a55b:free",     # 1M context!
+            "nvidia/nemotron-3-super-120b-a12b:free",     # 262K
+            "google/gemma-4-26b-a4b-it:free",             # 131K
+            "google/gemma-4-31b-it:free",                 # 262K
+            "inclusionai/ling-3.0-flash:free",            # 262K
+            "cohere/north-mini-code:free",                # 256K
+            "nvidia/nemotron-nano-9b-v2:free",            # 128K
         ],
         "priority": 4,
-        "context_window": 200_000,
+        "context_window": 1_000_000,
     },
     "ollama-cloud": {
         "name": "Ollama Cloud (Kimi/DeepSeek)",
