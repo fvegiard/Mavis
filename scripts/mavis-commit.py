@@ -103,6 +103,7 @@ def main():
     p.add_argument("--review-only", action="store_true", help="Just review, no commit")
     p.add_argument("--model", default=COPILOT_DEFAULT_MODEL, help=f"Copilot model for review (default: {COPILOT_DEFAULT_MODEL})")
     p.add_argument("--stage-all", action="store_true", help="git add -A first")
+    p.add_argument("--push", action="store_true", help="git push to origin/main after commit")
     args = p.parse_args()
 
     # Check we're in a git repo
@@ -191,6 +192,20 @@ def main():
     # Show last commit
     print("📜 Last commit:")
     print(git_log_recent(1))
+
+    # Optional push
+    if args.push:
+        remote_check = run(["git", "remote", "get-url", "origin"])
+        if remote_check.returncode != 0:
+            print("[WARN] No 'origin' remote. Skipping push.", file=sys.stderr)
+            return 0
+        print()
+        print("🚀 Pushing to origin/main...")
+        push_result = run(["git", "push", "origin", "main"], capture=False)
+        if push_result.returncode != 0:
+            print(f"[ERROR] Push failed", file=sys.stderr)
+            return 1
+        print("✅ Pushed to GitHub")
     return 0
 
 
