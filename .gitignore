@@ -1,6 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Secrets
+.env
+*.env
+credentials.env
+
+# Runtime data
 data/mavis_knowledge_cache.json
 data/cost_log.json
-.env
+
+# A2A queue (ephemeral)
 a2a/outbox.jsonl
 a2a/inbox.jsonl
-credentials.env
