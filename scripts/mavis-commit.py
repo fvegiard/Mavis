@@ -24,7 +24,8 @@ import subprocess
 from pathlib import Path
 
 
-COPILOT_DEFAULT_MODEL = "claude-opus-4.7"  # Best for code review
+COPILOT_DEFAULT_MODEL = "kimi-k2.7-code"  # Cheap, fast, great for code review (Francis 2026-08-04: "Kimi K2.7 très bon")
+COPILOT_PREMIUM_MODEL = "claude-opus-4.7"   # Premium for critical reviews
 
 
 def run(cmd: list, capture: bool = True) -> subprocess.CompletedProcess:
@@ -102,6 +103,7 @@ def main():
     p.add_argument("--no-review", action="store_true", help="Skip AI review")
     p.add_argument("--review-only", action="store_true", help="Just review, no commit")
     p.add_argument("--model", default=COPILOT_DEFAULT_MODEL, help=f"Copilot model for review (default: {COPILOT_DEFAULT_MODEL})")
+    p.add_argument("--premium", action="store_true", help=f"Use premium model ({COPILOT_PREMIUM_MODEL}) for critical reviews")
     p.add_argument("--stage-all", action="store_true", help="git add -A first")
     p.add_argument("--push", action="store_true", help="git push to origin/main after commit")
     args = p.parse_args()
@@ -139,10 +141,13 @@ def main():
 
     # Review
     if not args.no_review:
-        print(f"🤖 Reviewing via Copilot ({args.model})...")
+        model_to_use = COPILOT_PREMIUM_MODEL if args.premium else args.model
+        print(f"🤖 Reviewing via Copilot ({model_to_use})...")
+        if args.premium:
+            print(f"   (premium mode)")
         print("   (Copilot is RESERVED for commits/reviews per Francis 2026-08-04)")
         print()
-        review = review_with_copilot(diff, args.model)
+        review = review_with_copilot(diff, model_to_use)
         print("=" * 60)
         print("📋 CODE REVIEW")
         print("=" * 60)

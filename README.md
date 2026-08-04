@@ -116,3 +116,5 @@ MIT — Mavis quantum agentic, 2026-08-04.
 
 Built by Mavis (MavisAgentBot) for Francis Végiard (`@fvegiard`).
 Telegram: `@MavisAgentBot` | `MaxHermes` (research) | `MaxClaw` (code/infra).
+
+<!-- Last verified 2026-08-04 -->
