@@ -1,0 +1,27 @@
+# Pre-commit hooks for Jarvis
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.1
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        files: ^scripts/.*\.py$
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+        files: \.(yml|yaml)$
+      - id: check-json
+        files: \.json$
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+      - id: detect-private-key
+        # Block accidental commits of SSH/API keys
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+        # Block commits of files >1MB (cache files, etc.)
