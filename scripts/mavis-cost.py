@@ -95,11 +95,12 @@ def summarize(entries: list, period: str = "all"):
 
     by_model = defaultdict(lambda: {"calls": 0, "input": 0, "output": 0, "cost": 0.0})
     for e in entries:
+        e_cost = e.get("cost_usd", e.get("cost", 0))
         m = by_model[e["model"]]
-        m["calls"] += 1
-        m["input"] += e["input"]
-        m["output"] += e["output"]
-        m["cost"] += e["cost"]
+        m["calls"] = m.get("calls", 0) + 1
+        m["input"] = m.get("input", 0) + e.get("input", 0)
+        m["output"] = m.get("output", 0) + e.get("output", 0)
+        m["cost"] = m.get("cost", 0) + e_cost
 
     total_cost = sum(m["cost"] for m in by_model.values())
     total_calls = sum(m["calls"] for m in by_model.values())
@@ -121,11 +122,12 @@ def optimize(entries: list):
     if not entries:
         print("   No usage data yet. Run some mavis-call first.")
         return
-    total = sum(e["cost"] for e in entries)
+    total = sum(e.get("cost_usd", e.get("cost", 0)) for e in entries)
     by_model = defaultdict(lambda: {"calls": 0, "cost": 0.0})
     for e in entries:
-        by_model[e["model"]]["calls"] += 1
-        by_model[e["model"]]["cost"] += e["cost"]
+        e_cost = e.get("cost_usd", e.get("cost", 0))
+        by_model[e["model"]]["calls"] = by_model[e["model"]].get("calls", 0) + 1
+        by_model[e["model"]]["cost"] = by_model[e["model"]].get("cost", 0) + e_cost
 
     sonnet_cost = by_model.get("claude-sonnet-5", {}).get("cost", 0) + by_model.get("claude-sonnet-4-6", {}).get("cost", 0)
     haiku_cost = by_model.get("claude-haiku-4-5", {}).get("cost", 0)

@@ -1,1 +1,6 @@
 {"trace_id": "77c94072-8753-4fe1-9e1d-c3334a843ed7", "from": "Mavis", "to": "MaxHermes", "action": "query", "payload": {"q": "Research pgvector best practices"}, "timestamp": "2026-08-04T05:35:04.107504+00:00", "status": "pending"}
+{"trace_id": "d1763d63-30d9-4586-8564-82fb12402dce", "from": "Mavis", "to": "Mavis", "action": "notify", "payload": {"msg": "test"}, "timestamp": "2026-08-04T05:35:20.881426+00:00", "status": "pending"}
+{"trace_id": "7b221272-7a96-48f6-8759-7efac31fed09", "from": "Mavis", "to": "MaxHermes", "action": "notify", "payload": {"msg": "test"}, "timestamp": "2026-08-04T05:35:21.062363+00:00", "status": "pending"}
+{"trace_id": "1b1996e5-e51a-4bdc-a489-db4d9fa779a1", "from": "Mavis", "to": "MaxClaw", "action": "notify", "payload": {"msg": "test"}, "timestamp": "2026-08-04T05:35:21.204274+00:00", "status": "pending"}
+{"trace_id": "0be4f558-df22-423e-9032-a23bab3aab1d", "from": "Mavis", "to": "all", "action": "notify", "payload": {"msg": "test"}, "timestamp": "2026-08-04T05:35:21.349239+00:00", "status": "pending"}
+{"trace_id": "50b25ac3-ebca-4087-9038-a13ca986460d", "from": "Mavis", "to": "test-agent", "action": "notify", "payload": {"ok": true}, "timestamp": "2026-08-04T05:36:30.096521+00:00", "status": "pending"}
