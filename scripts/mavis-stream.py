@@ -32,6 +32,7 @@ def stream_via_curl(prompt: str, model: str = "claude-haiku-4-5", system: str = 
         "-H", "anthropic-version: 2023-06-01",
         "-H", "anthropic-beta: oauth-2025-04-20,claude-code-20250219",
         "-H", "accept: text/event-stream",
+        "-H", "User-Agent: Mavis/5.0",  # required by Cloudflare edge (1010)
     ]
 
     # Build system array with cache_control for the static part
