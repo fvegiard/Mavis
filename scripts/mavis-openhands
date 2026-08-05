@@ -1,0 +1,301 @@
+#!/usr/bin/env python3
+"""
+mavis-openhands — Mavis wrapper around the OpenHands Agent Server REST API.
+
+Lets Mavis drive OpenHands from the command line:
+  - start/stop/status of the local Agent Canvas stack
+  - create a conversation, send a prompt, poll for final response
+  - list conversations / events / tools
+  - expose a public tunnel via cloudflared for the web UI
+
+Requires the stack to be running (see start.sh). Reads API key from
+/root/.openhands/agent-canvas/api-key.txt.
+"""
+import argparse
+import json
+import os
+import subprocess
+import sys
+import time
+from pathlib import Path
+from urllib import request, error
+
+INGRESS = "http://127.0.0.1:8000"
+AGENT_API = "http://127.0.0.1:18000"
+AUTOMATION_API = "http://127.0.0.1:18001"
+API_KEY_FILE = Path("/root/.openhands/agent-canvas/api-key.txt")
+LOG_DIR = Path("/workspace/openhands-logs")
+TUNNEL_LOG = LOG_DIR / "tunnel.log"
+DEFAULT_WORKSPACE = "/workspace/oh-default"
+
+
+def _api_key() -> str:
+    if not API_KEY_FILE.exists():
+        raise SystemExit(f"API key not found at {API_KEY_FILE}. Run `mavis-openhands up` first.")
+    return API_KEY_FILE.read_text().strip()
+
+
+def _http(method: str, url: str, body: dict | None = None, host: str = AGENT_API) -> dict:
+    headers = {"Content-Type": "application/json", "X-Session-API-Key": _api_key()}
+    data = json.dumps(body).encode() if body is not None else None
+    req = request.Request(url=url, data=data, method=method, headers=headers)
+    try:
+        with request.urlopen(req, timeout=120) as resp:
+            payload = resp.read().decode()
+            return json.loads(payload) if payload else {}
+    except error.HTTPError as e:
+        body = e.read().decode(errors="replace")
+        try:
+            return {"_error": e.code, "_body": json.loads(body)}
+        except Exception:
+            return {"_error": e.code, "_body": body}
+
+
+def cmd_up(args):
+    """Start the full OpenHands Agent Canvas stack (foreground-safe)."""
+    if (LOG_DIR / "canvas.pid").exists():
+        pid = int((LOG_DIR / "canvas.pid").read_text().strip() or 0)
+        if pid and subprocess.run(["kill", "-0", str(pid)], capture_output=True).returncode == 0:
+            print(f"Already running (PID {pid}). Use `mavis-openhands status`.")
+            return
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["pkill", "-f", "agent-canvas"], capture_output=True)
+    subprocess.run(["pkill", "-f", "agent-server"], capture_output=True)
+    subprocess.run(["pkill", "-f", "automation"], capture_output=True)
+    time.sleep(2)
+    f = open(LOG_DIR / "server.log", "ab", buffering=0)
+    proc = subprocess.Popen(["agent-canvas", "-p", "8000"], stdout=f, stderr=subprocess.STDOUT)
+    (LOG_DIR / "canvas.pid").write_text(str(proc.pid))
+    print(f"Started agent-canvas, PID {proc.pid}")
+    for i in range(60):
+        try:
+            with request.urlopen(INGRESS, timeout=2) as r:
+                if r.status == 200:
+                    print(f"OK: ingress up on {INGRESS} (after {i+1}s)")
+                    break
+        except Exception:
+            time.sleep(1)
+    else:
+        print("ERROR: ingress did not come up in 60s. Check", LOG_DIR / "server.log")
+        return
+    if API_KEY_FILE.exists():
+        print(f"API key: {_api_key()}")
+    print("Workspace data: /root/.openhands/agent-canvas/")
+
+
+def cmd_down(args):
+    for name in ("canvas", "tunnel"):
+        f = LOG_DIR / f"{name}.pid"
+        if f.exists():
+            pid = int(f.read_text().strip() or 0)
+            if pid:
+                subprocess.run(["kill", str(pid)], capture_output=True)
+                print(f"Stopped {name} (PID {pid})")
+            f.unlink(missing_ok=True)
+    subprocess.run(["pkill", "-f", "agent-canvas"], capture_output=True)
+    subprocess.run(["pkill", "-f", "agent-server"], capture_output=True)
+    subprocess.run(["pkill", "-f", "automation"], capture_output=True)
+    subprocess.run(["pkill", "-f", "cloudflared"], capture_output=True)
+    print("Stack stopped.")
+
+
+def cmd_status(args):
+    KEY = _api_key()
+    rows = [
+        ("ingress", f"{INGRESS}/"),
+        ("agent_api", f"{AGENT_API}/alive"),
+        ("automation", f"{AUTOMATION_API}/health"),
+    ]
+    for label, url in rows:
+        try:
+            req = request.Request(url, headers={"X-Session-API-Key": KEY})
+            with request.urlopen(req, timeout=3) as r:
+                print(f"  {label:12s} HTTP {r.status}  ({r.read().decode(errors='replace')[:60]!r})")
+        except Exception as e:
+            print(f"  {label:12s} DOWN  ({e})")
+    public = LOG_DIR / "public_url.txt"
+    if public.exists():
+        print(f"  public_url   {public.read_text().strip()}")
+
+
+def cmd_tunnel(args):
+    """Expose port 8000 to the public Internet via cloudflared quick tunnel."""
+    if not (LOG_DIR / "cloudflared").exists():
+        print("Downloading cloudflared...")
+        subprocess.check_call([
+            "curl", "-sL", "--max-time", "60",
+            "-o", str(LOG_DIR / "cloudflared"),
+            "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64",
+        ])
+        (LOG_DIR / "cloudflared").chmod(0o755)
+    f = open(TUNNEL_LOG, "ab", buffering=0)
+    proc = subprocess.Popen(
+        [str(LOG_DIR / "cloudflared"), "tunnel", "--no-autoupdate", "--url", INGRESS],
+        stdout=f, stderr=subprocess.STDOUT,
+    )
+    (LOG_DIR / "tunnel.pid").write_text(str(proc.pid))
+    print(f"cloudflared starting, PID {proc.pid}")
+    for i in range(30):
+        if TUNNEL_LOG.exists():
+            content = TUNNEL_LOG.read_text()
+            for line in content.splitlines():
+                if "trycloudflare.com" in line and "https://" in line:
+                    import re
+                    m = re.search(r"https://[a-z0-9-]+\.trycloudflare\.com", line)
+                    if m:
+                        url = m.group(0)
+                        (LOG_DIR / "public_url.txt").write_text(url)
+                        print(f"PUBLIC URL: {url}")
+                        return
+        time.sleep(1)
+    print("ERROR: tunnel did not come up. Check", TUNNEL_LOG)
+
+
+def cmd_tools(args):
+    r = _http("GET", f"{AGENT_API}/api/tools/")
+    if isinstance(r, list):
+        for t in r:
+            print(" -", t if isinstance(t, str) else t.get("name"))
+    elif isinstance(r, dict):
+        for t in r.get("tools", r.get("items", [])):
+            print(" -", t if isinstance(t, str) else t.get("name"))
+
+
+def cmd_run(args):
+    """Create a conversation, run it, and print the final response."""
+    openrouter_key = os.environ.get("OPENROUTER_API_KEY") or args.openrouter_key
+    if not openrouter_key:
+        raise SystemExit("OPENROUTER_API_KEY env var required (or pass --openrouter-key)")
+    workspace = args.workspace
+    Path(workspace).mkdir(parents=True, exist_ok=True)
+    body = {
+        "initial_message": {
+            "role": "user",
+            "content": [{"type": "text", "text": args.prompt}],
+        },
+        "workspace": {"working_dir": workspace},
+        "agent_settings": {
+            "schema_version": 5,
+            "agent_kind": "openhands",
+            "agent": "CodeActAgent",
+            "llm": {
+                "model": args.model,
+                "api_key": openrouter_key,
+                "base_url": "https://openrouter.ai/api/v1",
+            },
+        },
+        "max_iterations": args.max_iter,
+    }
+    if args.security:
+        body["security_analyzer"] = {"kind": args.security}
+    r = _http("POST", f"{AGENT_API}/api/conversations", body)
+    if "_error" in r:
+        print("ERROR creating conversation:", json.dumps(r, indent=2))
+        sys.exit(1)
+    cid = r.get("id") or r.get("conversation_id")
+    print(f"Conversation created: {cid}")
+    print(f"Workspace: {workspace}")
+    if not args.no_run:
+        rr = _http("POST", f"{AGENT_API}/api/conversations/{cid}/run")
+        if "_error" in rr and "already running" not in str(rr):
+            print("Note: run response:", rr)
+    print("Polling for completion...")
+    deadline = time.time() + args.timeout
+    last_status = None
+    while time.time() < deadline:
+        info = _http("GET", f"{AGENT_API}/api/conversations/{cid}")
+        status = info.get("execution_status")
+        if status != last_status:
+            print(f"  status: {status}")
+            last_status = status
+        if status in ("finished", "stopped", "error", "rejected"):
+            break
+        time.sleep(2)
+    final = _http("GET", f"{AGENT_API}/api/conversations/{cid}/agent_final_response")
+    print("\n=== FINAL RESPONSE ===")
+    if isinstance(final, dict):
+        print(final.get("response", final))
+    else:
+        print(final)
+    print(f"\nConversation ID: {cid}")
+    if not args.no_log:
+        log = LOG_DIR / "last-conversation.json"
+        log.write_text(json.dumps({
+            "conversation_id": cid,
+            "workspace": workspace,
+            "final": final,
+            "info": info if 'info' in dir() else None,
+        }, indent=2, default=str))
+        print(f"Log: {log}")
+
+
+def cmd_list(args):
+    r = _http("GET", f"{AGENT_API}/api/conversations?limit=" + str(args.limit))
+    items = r if isinstance(r, list) else r.get("items", r.get("conversations", []))
+    for c in items[:args.limit]:
+        cid = c.get("id") or c.get("conversation_id")
+        ws = c.get("workspace", {}).get("working_dir", "?")
+        st = c.get("execution_status", "?")
+        title = c.get("title", "")
+        print(f"  {cid}  [{st:10s}]  {ws}  {title}")
+
+
+def cmd_events(args):
+    r = _http("GET", f"{AGENT_API}/api/conversations/{args.conversation_id}/events?reverse=true&limit={args.limit}")
+    items = r if isinstance(r, list) else r.get("items", [])
+    for e in items:
+        t = e.get("type", "?")
+        msg = e.get("message", e.get("content", ""))
+        if isinstance(msg, list):
+            msg = " | ".join(
+                c.get("text", str(c)[:80]) for c in msg if isinstance(c, dict)
+            )
+        print(f"[{t}] {str(msg)[:200]}")
+
+
+def main():
+    p = argparse.ArgumentParser(prog="mavis-openhands", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    sp = sub.add_parser("up", help="start the OpenHands Agent Canvas stack")
+    sp.set_defaults(func=cmd_up)
+
+    sp = sub.add_parser("down", help="stop the stack")
+    sp.set_defaults(func=cmd_down)
+
+    sp = sub.add_parser("status", help="check stack health")
+    sp.set_defaults(func=cmd_status)
+
+    sp = sub.add_parser("tunnel", help="expose port 8000 via cloudflared quick tunnel")
+    sp.set_defaults(func=cmd_tunnel)
+
+    sp = sub.add_parser("tools", help="list available agent tools")
+    sp.set_defaults(func=cmd_tools)
+
+    sp = sub.add_parser("run", help="create + run a conversation, return final response")
+    sp.add_argument("prompt", help="the task for the agent")
+    sp.add_argument("--workspace", default=DEFAULT_WORKSPACE)
+    sp.add_argument("--model", default="openrouter/anthropic/claude-sonnet-4.5")
+    sp.add_argument("--max-iter", type=int, default=50)
+    sp.add_argument("--timeout", type=int, default=600)
+    sp.add_argument("--no-run", action="store_true", help="only create, don't run")
+    sp.add_argument("--no-log", action="store_true")
+    sp.add_argument("--security", choices=["llm", "invariant"], help="enable security analyzer")
+    sp.add_argument("--openrouter-key", help="override OPENROUTER_API_KEY env")
+    sp.set_defaults(func=cmd_run)
+
+    sp = sub.add_parser("list", help="list recent conversations")
+    sp.add_argument("--limit", type=int, default=20)
+    sp.set_defaults(func=cmd_list)
+
+    sp = sub.add_parser("events", help="show events of a conversation")
+    sp.add_argument("conversation_id")
+    sp.add_argument("--limit", type=int, default=20)
+    sp.set_defaults(func=cmd_events)
+
+    args = p.parse_args()
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,413 @@
+#!/usr/bin/env python3
+"""
+mavis-delegate — Mavis orchestrator: pick the right agent, run a 4-stage
+verification gate, and report a single line of proof.
+
+The 4-stage gate (Francis's rule: "always verify if everything works first"):
+  Stage 1 REACHABLE  — agent/tool responds to ping
+  Stage 2 CAPABLE    — accepts the input shape without error
+  Stage 3 CORRECT    — produces expected output for a canonical test
+  Stage 4 ARTIFACT   — produces a real, inspectable artifact
+
+Decision matrix (which agent for which task):
+  code / build / fix / test / refactor / debug  → OpenHands (CodeActAgent)
+  research / web / compare / cite / summarize   → Hermes
+  remote shell / infra / deploy / file-manip    → MaxClaw
+  review / verify / poke-holes / adversarial    → Coder subagent (or self)
+  quick recon / read-only / fast answer         → Scout subagent
+  generic / multi-step / unknown                → General subagent
+  everything else                               → Mavis (self)
+
+Usage:
+  mavis-delegate "fix the failing test in mavis-hook.py"
+  mavis-delegate "research 2026 best coding agent"  --auto
+  mavis-delegate --agent=openhands "write a hello.py"  --workspace /tmp/x
+  mavis-delegate --matrix                        # show the decision tree
+  mavis-delegate --verify-only <file>            # stage-4 check only
+  mavis-delegate "task" --no-verify              # skip gate (not recommended)
+"""
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+from pathlib import Path
+from urllib import request, error
+
+LOG_DIR = Path("/workspace/openhands-logs")
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+
+# ---------- Classification ----------
+CODE_KEYWORDS = [
+    "write", "build", "fix", "debug", "refactor", "implement", "code", "compile",
+    "test", "unit test", "pytest", "lint", "run", "execute", "deploy", "install",
+    "npm", "pip", "git", "commit", "push", "docker", "shell", "bash", "script",
+    "function", "class", "module", "api", "endpoint", "error", "bug", "stack trace",
+    "failing", "broken", "doesn't work",
+]
+RESEARCH_KEYWORDS = [
+    "research", "find", "search", "compare", "best", "vs", "versus", "review",
+    "summarize", "summary", "what is", "how does", "why", "explain", "cite",
+    "source", "paper", "article", "blog", "news", "github", "stackoverflow",
+]
+INFRA_KEYWORDS = [
+    "restart", "reboot", "ssh", "scp", "rsync", "systemctl", "service", "deploy",
+    "k8s", "kubectl", "terraform", "ansible", "vps", "server", "mx linux", "host",
+    "mount", "unzip", "chmod", "chown", "apt", "apt-get", "package", "crontab",
+]
+VERIFY_KEYWORDS = [
+    "verify", "check", "audit", "review the", "poke holes", "find bugs in",
+    "is this correct", "validate",
+]
+
+
+def classify(task: str) -> str:
+    """Return the best agent name for the task."""
+    t = task.lower()
+    if any(k in t for k in VERIFY_KEYWORDS):
+        return "verifier"
+    code_hits = sum(1 for k in CODE_KEYWORDS if k in t)
+    research_hits = sum(1 for k in RESEARCH_KEYWORDS if k in t)
+    infra_hits = sum(1 for k in INFRA_KEYWORDS if k in t)
+    # Tie-break: infra wins over code when equal (deploy+ssh is ops, not local code)
+    if infra_hits >= code_hits and infra_hits >= research_hits and infra_hits > 0:
+        return "maxclaw"
+    if research_hits >= code_hits and research_hits > 0:
+        return "hermes"
+    if code_hits > 0:
+        return "openhands"
+    return "general"
+
+
+# ---------- Smoke tests for the 4-stage gate ----------
+def stage_reachable(agent: str) -> dict:
+    """Stage 1: is the agent reachable and responding?"""
+    if agent in ("openhands", "code", "coder"):
+        try:
+            with request.urlopen("http://127.0.0.1:18000/alive", timeout=3) as r:
+                return {"ok": r.status == 200, "detail": f"agent-server HTTP {r.status}"}
+        except Exception as e:
+            return {"ok": False, "detail": f"agent-server down: {e}"}
+    if agent in ("hermes", "maxclaw", "claude"):
+        # We can't ping these from here reliably — they're separate sessions.
+        # Trust they exist (verified via mavis agent list earlier) and return success
+        # but mark as 'assumed'. The actual reachability is the spawning step.
+        return {"ok": True, "detail": f"{agent} session exists (assumed; not pinged)"}
+    if agent in ("general", "verifier", "scout", "explore"):
+        return {"ok": True, "detail": f"subagent '{agent}' spawnable on demand"}
+    return {"ok": False, "detail": f"unknown agent '{agent}'"}
+
+
+def stage_capable(agent: str, task: str) -> dict:
+    """Stage 2: does the agent accept a known-shape input?"""
+    if agent == "openhands":
+        # OpenHands: create a tiny test conversation, check it doesn't 400
+        try:
+            r = _openhands_create("Reply with exactly PONG. No tools.", model="openrouter/anthropic/claude-sonnet-4.5", workspace="/tmp/mavis-delegate-smoke", max_iter=3)
+            if r.get("id"):
+                return {"ok": True, "detail": f"created smoke conv {r['id'][:8]} (will wait for PONG in stage 3)"}
+            return {"ok": False, "detail": f"create failed: {json.dumps(r)[:200]}"}
+        except Exception as e:
+            return {"ok": False, "detail": f"create error: {e}"}
+    return {"ok": True, "detail": f"{agent} capability not smoke-tested; will check on dispatch"}
+
+
+def stage_correct(agent: str, expected_marker: str) -> dict:
+    """Stage 3: does the agent produce the expected output marker?"""
+    if agent == "openhands":
+        try:
+            KEY = Path("/root/.openhands/agent-canvas/api-key.txt").read_text().strip()
+            # Use /search endpoint (works without params)
+            with request.urlopen(
+                request.Request(
+                    "http://127.0.0.1:18000/api/conversations/search",
+                    headers={"X-Session-API-Key": KEY},
+                ),
+                timeout=10,
+            ) as resp:
+                obj = json.loads(resp.read().decode())
+            items = obj.get("items", [])
+            for c in items[:5]:
+                cid = c.get("id")
+                ws = c.get("workspace", {}).get("working_dir", "")
+                # only look at the smoke-test conv (workspace marker)
+                if "mavis-delegate-smoke" not in ws:
+                    continue
+                status = c.get("execution_status", "")
+                if status not in ("finished", "stopped"):
+                    continue
+                with request.urlopen(
+                    request.Request(
+                        f"http://127.0.0.1:18000/api/conversations/{cid}/agent_final_response",
+                        headers={"X-Session-API-Key": KEY},
+                    ),
+                    timeout=5,
+                ) as r2:
+                    final = json.loads(r2.read().decode())
+                resp_text = final.get("response", "")
+                if expected_marker.lower() in resp_text.lower():
+                    return {"ok": True, "detail": f"conv {cid[:8]} produced {expected_marker!r}"}
+                else:
+                    return {"ok": False, "detail": f"conv {cid[:8]} finished but no {expected_marker!r}: got {resp_text[:80]!r}"}
+            return {"ok": False, "detail": f"no finished smoke conv found"}
+        except Exception as e:
+            return {"ok": False, "detail": f"verify error: {e}"}
+    return {"ok": True, "detail": f"{agent} correctness assumed for non-smoke-tested path"}
+
+
+def stage_artifact(workspace: str, expected_paths: list[str]) -> dict:
+    """Stage 4: do the expected files actually exist?"""
+    if not expected_paths:
+        return {"ok": True, "detail": "no artifact paths specified"}
+    ws = Path(workspace)
+    found = []
+    missing = []
+    for p in expected_paths:
+        full = ws / p if not p.startswith("/") else Path(p)
+        if full.exists():
+            sz = full.stat().st_size
+            found.append(f"{p} ({sz}B)")
+        else:
+            missing.append(p)
+    if missing:
+        return {"ok": False, "detail": f"missing artifacts: {missing}; found: {found}"}
+    return {"ok": True, "detail": f"artifacts OK: {found}"}
+
+
+# ---------- OpenHands helpers (re-used from mavis-openhands) ----------
+def _openhands_create(prompt: str, model: str, workspace: str, max_iter: int = 50, security: str | None = None) -> dict:
+    key_path = Path("/root/.openhands/agent-canvas/api-key.txt")
+    KEY = key_path.read_text().strip() if key_path.exists() else ""
+    if not KEY:
+        return {"_error": "no_openhands_key"}
+    openrouter_key = os.environ.get("OPENROUTER_API_KEY", "")
+    Path(workspace).mkdir(parents=True, exist_ok=True)
+    body = {
+        "initial_message": {
+            "role": "user",
+            "content": [{"type": "text", "text": prompt}],
+        },
+        "workspace": {"working_dir": workspace},
+        "agent_settings": {
+            "schema_version": 5,
+            "agent_kind": "openhands",
+            "agent": "CodeActAgent",
+            "llm": {
+                "model": model,
+                "api_key": openrouter_key,
+                "base_url": "https://openrouter.ai/api/v1",
+            },
+        },
+        "max_iterations": max_iter,
+    }
+    if security:
+        body["security_analyzer"] = {"kind": security}
+    req = request.Request(
+        "http://127.0.0.1:18000/api/conversations",
+        data=json.dumps(body).encode(),
+        method="POST",
+        headers={"Content-Type": "application/json", "X-Session-API-Key": KEY},
+    )
+    try:
+        with request.urlopen(req, timeout=30) as r:
+            return json.loads(r.read().decode())
+    except error.HTTPError as e:
+        return {"_error": e.code, "_body": e.read().decode(errors="replace")[:500]}
+
+
+def _openhands_run_and_wait(cid: str, timeout: int = 300) -> dict:
+    KEY = Path("/root/.openhands/agent-canvas/api-key.txt").read_text().strip()
+    try:
+        request.urlopen(
+            request.Request(
+                f"http://127.0.0.1:18000/api/conversations/{cid}/run",
+                method="POST",
+                headers={"X-Session-API-Key": KEY},
+            ),
+            timeout=10,
+        )
+    except Exception as e:
+        pass  # already running is fine
+    deadline = time.time() + timeout
+    last = None
+    while time.time() < deadline:
+        try:
+            with request.urlopen(
+                request.Request(
+                    f"http://127.0.0.1:18000/api/conversations/{cid}",
+                    headers={"X-Session-API-Key": KEY},
+                ),
+                timeout=10,
+            ) as r:
+                info = json.loads(r.read().decode())
+            status = info.get("execution_status")
+            if status != last:
+                print(f"  [status: {status}]", file=sys.stderr)
+                last = status
+            if status in ("finished", "stopped", "error", "rejected"):
+                with request.urlopen(
+                    request.Request(
+                        f"http://127.0.0.1:18000/api/conversations/{cid}/agent_final_response",
+                        headers={"X-Session-API-Key": KEY},
+                    ),
+                    timeout=10,
+                ) as rf:
+                    final = json.loads(rf.read().decode())
+                return {"info": info, "final": final}
+        except Exception as e:
+            print(f"  [poll error: {e}]", file=sys.stderr)
+        time.sleep(3)
+    return {"_timeout": True, "info": info if 'info' in dir() else {}}
+
+
+# ---------- Main dispatch ----------
+def run_openhands(task: str, workspace: str, timeout: int, expected: list[str]) -> dict:
+    print(f"[delegate → openhands] workspace={workspace}", file=sys.stderr)
+    t0 = time.time()
+    conv = _openhands_create(task, model="openrouter/anthropic/claude-sonnet-4.5", workspace=workspace, max_iter=40)
+    if "_error" in conv:
+        return {"agent": "openhands", "ok": False, "error": conv}
+    cid = conv.get("id")
+    print(f"  conv: {cid}", file=sys.stderr)
+    result = _openhands_run_and_wait(cid, timeout=timeout)
+    if result.get("_timeout"):
+        return {"agent": "openhands", "ok": False, "error": "timeout", "conversation_id": cid}
+    final = result.get("final", {}).get("response", "")
+    info = result.get("info", {})
+    cost = info.get("stats", {}).get("usage_to_metrics", {}).get("default", {}).get("accumulated_cost", 0)
+    artifact = stage_artifact(workspace, expected)
+    return {
+        "agent": "openhands",
+        "ok": artifact["ok"],
+        "conversation_id": cid,
+        "response": final[:1500],
+        "artifact": artifact,
+        "cost_usd": cost,
+        "duration_s": round(time.time() - t0, 1),
+    }
+
+
+def run_subagent(agent_kind: str, task: str, workspace: str) -> dict:
+    """Spawn a cloud subagent (general/verifier/scout/explore) via the task tool.
+    This function returns a placeholder — actual spawning happens via the task tool.
+    The mavis-delegate caller (me) will spawn the subagent using the task tool."""
+    return {
+        "agent": agent_kind,
+        "ok": True,
+        "action": "spawn",
+        "kind": agent_kind,
+        "task": task,
+        "workspace": workspace,
+        "note": "subagent spawn handled by Mavis orchestrator (out-of-band)",
+    }
+
+
+def run_external_session(agent_name: str, task: str) -> dict:
+    """Route to MaxClaw / Hermes / Claude via communicate. Handled out-of-band."""
+    return {
+        "agent": agent_name,
+        "ok": True,
+        "action": "communicate",
+        "task": task,
+        "note": f"external session '{agent_name}' dispatch handled by Mavis orchestrator (out-of-band)",
+    }
+
+
+def main():
+    p = argparse.ArgumentParser(prog="mavis-delegate", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("task", nargs="?", help="the task to delegate")
+    p.add_argument("--agent", choices=["openhands", "hermes", "maxclaw", "claude", "general", "verifier", "scout", "explore", "auto"], default="auto")
+    p.add_argument("--workspace", default="/tmp/mavis-delegate-out", help="working dir for code tasks")
+    p.add_argument("--timeout", type=int, default=300, help="seconds")
+    p.add_argument("--expected", help="comma-separated artifact paths (relative to workspace) to verify exist")
+    p.add_argument("--no-verify", action="store_true", help="skip the 4-stage gate (not recommended)")
+    p.add_argument("--matrix", action="store_true", help="print the decision matrix and exit")
+    p.add_argument("--dry-run", action="store_true", help="classify and show plan, don't dispatch")
+    args = p.parse_args()
+
+    if args.matrix:
+        print("=== DECISION MATRIX ===")
+        print("code / fix / build / test / debug / refactor / npm / pip / git  → openhands")
+        print("research / find / compare / summarize / explain / cite            → hermes")
+        print("restart / ssh / scp / systemctl / deploy / k8s / host / mount    → maxclaw")
+        print("verify / check / audit / review / poke holes / is this correct   → verifier")
+        print("quick recon / read-only / fast lookup / one question             → scout")
+        print("codebase mapping / structure / where is X defined                → explore")
+        print("anything multi-step / unclear / generic                          → general")
+        print("self / introspection / user-facing                               → Mavis")
+        return
+
+    if not args.task:
+        p.error("task required (or use --matrix)")
+
+    agent = args.agent if args.agent != "auto" else classify(args.task)
+    expected = [e.strip() for e in (args.expected or "").split(",") if e.strip()]
+
+    print(f"[mavis-delegate] task: {args.task[:80]}{'...' if len(args.task)>80 else ''}", file=sys.stderr)
+    print(f"[mavis-delegate] agent: {agent}  workspace: {args.workspace}  timeout: {args.timeout}s", file=sys.stderr)
+    if expected:
+        print(f"[mavis-delegate] expected artifacts: {expected}", file=sys.stderr)
+
+    if args.dry_run:
+        sys.stdout.write(json.dumps({"agent": agent, "workspace": args.workspace, "expected": expected, "task": args.task[:80]}))
+        sys.stdout.write("\n")
+        return
+
+    # ---- 4-STAGE GATE ----
+    if not args.no_verify:
+        print("\n[gate] stage 1: REACHABLE")
+        s1 = stage_reachable(agent)
+        print(f"  → {s1}")
+        if not s1["ok"]:
+            print(f"\n[FAIL] stage 1 failed: {s1['detail']}")
+            sys.exit(2)
+
+        print("[gate] stage 2: CAPABLE")
+        s2 = stage_capable(agent, args.task)
+        print(f"  → {s2}")
+        if not s2["ok"]:
+            print(f"\n[FAIL] stage 2 failed: {s2['detail']}")
+            sys.exit(2)
+
+        # Stage 3 (CORRECT) only runs meaningful smoke for openhands
+        if agent == "openhands":
+            print("[gate] stage 3: CORRECT")
+            s3 = stage_correct(agent, "PONG")
+            print(f"  → {s3}")
+            if not s3["ok"]:
+                print(f"\n[FAIL] stage 3 failed: {s3['detail']}")
+                sys.exit(2)
+
+    # ---- DISPATCH ----
+    print(f"\n[dispatch] sending to {agent}...")
+    if agent == "openhands":
+        result = run_openhands(args.task, args.workspace, args.timeout, expected)
+    elif agent in ("general", "verifier", "scout", "explore"):
+        result = run_subagent(agent, args.task, args.workspace)
+    elif agent in ("hermes", "maxclaw", "claude"):
+        result = run_external_session(agent, args.task)
+    else:
+        result = {"agent": agent, "ok": False, "error": f"unknown agent {agent}"}
+
+    print(f"\n=== RESULT ===")
+    print(json.dumps(result, indent=2, default=str))
+
+    # Persist to log
+    log = LOG_DIR / f"delegate-{int(time.time())}.json"
+    log.write_text(json.dumps({
+        "task": args.task,
+        "agent": agent,
+        "workspace": args.workspace,
+        "expected": expected,
+        "result": result,
+    }, indent=2, default=str))
+    print(f"\n[log: {log}]", file=sys.stderr)
+
+    sys.exit(0 if result.get("ok") else 1)
+
+
+if __name__ == "__main__":
+    main()

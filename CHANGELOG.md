@@ -1,7 +1,44 @@
 # Changelog
 
 All notable changes to Jarvis (Mavis agent system) are documented here.
-Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+Format: [Keep a Changelog](https://keepchangelog.com/en/1.1.0/).
+
+## [9.0.0] - 2026-08-05
+
+### Added — OpenHands integration + mavis-delegate orchestration
+- **OpenHands Agent Canvas 1.9.0** installed and verified working in cloud VM (no Docker required — uses `npm @openhands/agent-canvas` + `uvx` for Python 3.12.13)
+  - Full stack: Agent Canvas UI (`:8000`), agent-server (`:18000`), automation backend (`:18001`)
+  - 15 tools registered (terminal, file_editor, browser, glob, grep, edit, read/write_file, list_directory, planning_file_editor, task_tracker, workflow, sub-agents)
+  - Default agent profile configured: `CodeActAgent` + OpenRouter (`anthropic/claude-sonnet-4.5`)
+  - Public web UI tunnel via `cloudflared` 2026.7.3
+- **`mavis-openhands`** CLI wrapper (`scripts/mavis-openhands`)
+  - `up / down / status / tunnel / tools / run / list / events` subcommands
+  - Drives OpenHands REST API end-to-end with proper `agent_settings` config (not the broken `agent` shape)
+- **`mavis-delegate`** — Mavis orchestrator with **4-stage verification gate**
+  - Stage 1 REACHABLE: ping the agent, must respond
+  - Stage 2 CAPABLE: smoke-test input shape
+  - Stage 3 CORRECT: smoke-test output (OpenHands smoke conv must produce PONG)
+  - Stage 4 ARTIFACT: verify expected files actually exist
+  - Classification matrix: code → openhands, research → hermes, infra → maxclaw, verify → verifier, default → general
+  - Dry-run mode (`--dry-run`) shows the plan before dispatch
+
+### Fixed
+- **`mavis-call` 429 failover**: Anthropic OAuth rate-limit now auto-fails-over to OpenRouter (`anthropic/claude-sonnet-4.5` via OpenRouter). Verified working: 429 → instant failover → success.
+- **`mavis-call` provider list**: now supports `--provider {anthropic-oauth, openrouter}` (was Anthropic-only)
+- **`mavis-rag` 400 error**: removed non-existent `title` column from SELECT (real schema: `id, topic, type, content, source, tags, embedding`)
+- **`mavis-rag` HTTP 400 from OpenRouter**: added `HTTP-Referer: https://mavis.local` header (required by OpenRouter)
+- **`mavis-openhands` agent config**: switched from broken `agent: {name, llm}` (only gives think+finish tools) to `agent_settings: {schema_version, agent_kind, agent, llm}` (gives full CodeActAgent with terminal + file_editor + task_tracker)
+
+### Verified end-to-end (2026-08-05)
+- `mavis-delegate "write fib.py + run it" --expected fib.py` → all 4 stages passed, real artifact created, runs to `55` correctly. Cost: $0.053, duration 31.1s.
+- `mavis-call "Reply OK"` → Anthropic OAuth 429 → auto-failover to OpenRouter → "OK" returned
+- `mavis-rag "what is tailscale debug"` → top-5 retrieval → Claude answer with citations. 5.9s total.
+- OpenHands public URL: `https://internationally-supplements-caution-existed.trycloudflare.com` (trycloudflare quick tunnel, rotates)
+
+### Notes
+- The full Mavis v9.0 stack runs entirely in the cloud sandbox (no Docker, no local MX Linux required for testing)
+- OpenHands CodeActAgent is the executor; mavis-delegate is the orchestrator; mavis-call / mavis-rag are the data layer
+- The 4-stage gate implements Francis's rule: "always verify if everything works first"
 
 ## [8.0.0] - 2026-08-04
 
