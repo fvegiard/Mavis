@@ -65,29 +65,43 @@ Sonnet 5 / 4.6 / Opus 5 rate-limit-pool returns **HTTP 429** when the `--system`
 
 For short-context queries (no RAG), you can override with `--model claude-sonnet-5`.
 
-## How mavis-call works (the trick)
+## How mavis-call works (v10.1 — M3-native, no hack)
+
+v10.1 (2026-08-05) dropped the `"You are Claude Code..."` OAuth pool unlock
+prefix. **Mavis runs natively on MiniMax-M3** — there's no need to pretend
+to be Claude Code to access a different rate limit pool.
 
 ```python
-# The system prompt that unlocks the Claude Code rate-limit pool:
-POOL_UNLOCK = "You are Claude Code, Anthropic's official CLI for Claude."
+# v10.1: simple direct Anthropic API call, no prefix trick
+import os, json
+from urllib import request
 
-# Required headers:
-#   Authorization: Bearer ${ANTHROPIC_OAUTH_TOKEN}
-#   anthropic-version: 2023-06-01
-#   anthropic-beta: oauth-2025-04-20,claude-code-20250219  # CRITICAL: without this, OAuth tokens restricted to Haiku
-#   content-type: application/json
+token = os.environ["ANTHROPIC_OAUTH_TOKEN"]
+url = "https://api.anthropic.com/v1/messages"
 
-# Required body fields (system MUST be an array, not a string):
-#   "model": "claude-sonnet-5"  (or opus-5, fable-5, etc)
-#   "max_tokens": 1024
-#   "system": [{"type": "text", "text": POOL_UNLOCK}]  # array format required
-#   "thinking": {"type": "disabled"}  # CRITICAL: without this, model returns only empty thinking block
-#   "messages": [{"role": "user", "content": prompt}]
+# Required headers (v10.1 — no anthropic-beta hack):
+headers = {
+    "Content-Type": "application/json",
+    "Authorization": f"Bearer {token}",
+    "anthropic-version": "2023-06-01",
+    "User-Agent": "Mavis/10.1",
+}
+
+# Body: cache_control on the system block for 90% read discount
+body = {
+    "model": "claude-haiku-4-5",  # or sonnet-5, opus-5, etc.
+    "max_tokens": 1024,
+    "system": [{"type": "text", "text": "You are Mavis...",
+                "cache_control": {"type": "ephemeral", "ttl": "1h"}}],
+    "thinking": {"type": "disabled"},
+    "messages": [{"role": "user", "content": prompt}],
+}
 ```
 
-Without the system prompt → 429 on all non-Haiku models.
-Without the `claude-code-20250219` beta header → restricted to Haiku only.
-With both → 200 OK on all 8 publicly released models.
+If you ever need the **old Claude Code OAuth pool unlock** (e.g. when
+calling from a non-M3 system that needs the higher rate limit pool), the
+recipe is still documented in the git history of v10.0 and earlier.
+Mavis v10.1+ does not use it.
 
 ## Files
 

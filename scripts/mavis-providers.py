@@ -20,17 +20,14 @@ Usage:
   mavis-providers call --provider copilot "prompt"  # force a provider
   mavis-providers list                    # show all models available per provider
 """
-import sys
-import os
-import json
 import argparse
-import subprocess
-import urllib.request
-import urllib.error
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
+import json
+import os
+import sys
 import time
-
+import urllib.error
+import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ============================================================
 # Provider definitions
@@ -38,7 +35,7 @@ import time
 
 PROVIDERS = {
     "claude-oauth": {
-        "name": "Claude (OAuth pool)",
+        "name": "Claude (direct API, M3-routed)",
         "env_key": "ANTHROPIC_OAUTH_TOKEN",
         "endpoint": "https://api.anthropic.com/v1/messages",
         "auth_header": "Bearer {key}",
@@ -187,7 +184,7 @@ def test_provider(name: str, p: dict) -> dict:
                 "model": test_model,
                 "max_tokens": 5,
                 "thinking": {"type": "disabled"},
-                "system": [{"type": "text", "text": "You are Claude Code, Anthropic's official CLI for Claude."}],
+                "system": [{"type": "text", "text": "You are Mavis, an AI assistant powered by MiniMax-M3."}],
                 "messages": [{"role": "user", "content": "OK"}],
             }).encode()
             url = p["endpoint"]
@@ -195,7 +192,7 @@ def test_provider(name: str, p: dict) -> dict:
                 "Content-Type": "application/json",
                 "Authorization": p["auth_header"].format(key=key),
                 "anthropic-version": "2023-06-01",
-                "anthropic-beta": "oauth-2025-04-20,claude-code-20250219",
+                "anthropic-beta": "oauth-2025-04-20",
             }
         elif p["format"] == "gemini":
             url = p["endpoint"].format(model=test_model, key=key)
@@ -335,7 +332,7 @@ def cmd_call(args):
             "model": model,
             "max_tokens": args.tokens,
             "thinking": {"type": "disabled"},
-            "system": [{"type": "text", "text": "You are Claude Code, Anthropic's official CLI for Claude."}],
+            "system": [{"type": "text", "text": "You are Mavis, an AI assistant powered by MiniMax-M3."}],
             "messages": [{"role": "user", "content": args.prompt}],
         }).encode()
         url = p["endpoint"]
@@ -343,7 +340,7 @@ def cmd_call(args):
             "Content-Type": "application/json",
             "Authorization": p["auth_header"].format(key=key),
             "anthropic-version": "2023-06-01",
-            "anthropic-beta": "oauth-2025-04-20,claude-code-20250219",
+            "anthropic-beta": "oauth-2025-04-20",
         }
     elif p["format"] == "gemini":
         url = p["endpoint"].format(model=model, key=key)

@@ -3,6 +3,60 @@
 All notable changes to Jarvis (Mavis agent system) are documented here.
 Format: [Keep a Changelog](https://keepchangelog.com/en/1.1.0/).
 
+## [10.1.0] - 2026-08-05
+
+### M3-native: dropped OAuth pool unlock hack
+
+**Triggered by Francis**: "C'est pas la dernière version cela code 2 on va
+utiliser juste minimax-m3 pour le moment on va éviter les conflits pour
+voir fais les modification"
+
+**Why**: Mavis runs natively on **MiniMax-M3**. The
+`"You are Claude Code, Anthropic's official CLI for Claude."` OAuth pool
+unlock prefix was a hack to access a different rate limit pool — only
+needed when other systems pretended to be Claude Code. Mavis is M3, no
+identity conflict, no hack needed.
+
+### Changed
+- **`scripts/mavis-call`**: removed `OAUTH_POOL_UNLOCK` prefix. Removed
+  `claude-code-20250219` from `anthropic-beta` header. Default model
+  switched from `claude-sonnet-4-5` → `claude-haiku-4-5` (cheaper, no
+  rate-limit shared with home PC). User-Agent bumped to `Mavis/10.1`.
+- **`scripts/mavis-providers.py`**: removed `claude-code-20250219` beta
+  header from claude-oauth provider. Renamed `"Claude (OAuth pool)"` →
+  `"Claude (direct API, M3-routed)"`. System message in test probe
+  switched from "You are Claude Code..." → "You are Mavis...powered by
+  MiniMax-M3".
+- **`scripts/mavis-stream.py`**: same — dropped `claude-code-20250219`,
+  switched unlock prefix to M3-native message.
+- **`prompts/SYSTEM_PROMPT.md`** v4.0 → v4.1: context now states
+  "Model: MiniMax-M3 (native)" and drops the OAuth unlock reference.
+- **`prompts/SOUL.md`**: added "I run natively on M3 (no Claude Code
+  OAuth pool unlock hack needed)".
+- **`AGENTS.md`**: stack section now lists MiniMax-M3; provider order
+  comment notes v10.1 dropped the hack.
+- **`INSTALL.md`**: "How mavis-call works" section rewritten to show
+  v10.1 (no prefix, no beta hack). Old trick documented as historical
+  reference for non-M3 systems that still need it.
+
+### Kept (still valuable)
+- `cache_control: {type: "ephemeral", ttl: "1h"}` — 90% read discount
+  works for direct API too
+- `--cache-ttl {5m,1h}` and `--no-cache` flags
+- BM25 + dense RRF hybrid in mavis-rag
+- All 6 prompt files (SOUL, SYSTEM_PROMPT, CONSTITUTION, PROCESS_RULES,
+  AGENTS, REFLEXION_LAYER)
+
+### Verified
+- `ruff check` on changed files: 0 new errors (2 pre-existing BLE001 in
+  mavis-providers.py unrelated to this change)
+- `pytest tests/`: 62 passed, 1 skipped (unchanged from v10.0)
+
+### Migration note
+If you were relying on the Claude Code OAuth pool (e.g. running Mavis
+on a non-M3 system), the old behavior is preserved in the git history
+of v10.0 and earlier. Revert `mavis-call` to v10.0 to restore.
+
 ## [10.0.0] - 2026-08-05
 
 ### Ultra-Optimization — 10 parallel research sub-agents

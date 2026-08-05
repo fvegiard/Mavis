@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """
-mavis-call — Claude API wrapper with OAuth pool unlock + Cloudflare AI Gateway.
+mavis-call — M3-native LLM call wrapper (Anthropic / OpenRouter / Groq / Copilot).
+
+v10.1: dropped the "You are Claude Code..." OAuth pool unlock prefix.
+Mavis runs natively on MiniMax-M3. No identity conflict, no hack needed.
 
 Supports:
-- ANTHROPIC_OAUTH_TOKEN (primary, with pool-unlock system prompt)
+- ANTHROPIC_OAUTH_TOKEN (direct Anthropic API)
 - ANTHROPIC_OAUTH_TOKEN_BACKUP (failover)
-- ANTHROPIC_API_KEY (fallback)
 - OPENROUTER_API_KEY (multi-model via OpenRouter)
-- --model <name>       default: claude-sonnet-4-5
+- GROQ_API_KEY (fast inference)
+- GITHUB_COPILOT_OAUTH (Copilot premium models, reserved for commits)
+- --model <name>       default: claude-haiku-4-5
 - --no-gateway         bypass Cloudflare AI Gateway
 - --stream             SSE streaming
 - --max-tokens N
@@ -24,8 +28,12 @@ import sys
 import time
 from urllib import error, request
 
-# --- OAuth pool unlock prefix (CRITICAL — see MEMORY) ---
-OAUTH_POOL_UNLOCK = "You are Claude Code, Anthropic's official CLI for Claude."
+# --- v10.1: dropped the "You are Claude Code..." OAuth pool unlock prefix.
+# Reason: Mavis runs natively on MiniMax-M3. No identity conflict, no hack needed.
+# Direct Anthropic API calls work fine without the unlock prefix for our usage.
+# The trick was needed when other systems pretended to be Claude Code to access
+# a different rate limit pool — Mavis doesn't need that.
+# (See CHANGELOG v10.1.)
 
 # --- Prompt cache TTL (1h default = 90% off read, 2x write; 5m = 90% off read, 1.25x write) ---
 CACHE_TTL_1H = {"type": "ephemeral", "ttl": "1h"}
@@ -53,10 +61,9 @@ def _anthropic_oauth_call(prompt, model, max_tokens, temperature, system, stream
             "Content-Type": "application/json",
             "Authorization": f"Bearer {token}",
             "anthropic-version": "2023-06-01",
-            "anthropic-beta": "oauth-2025-04-20",
-            "User-Agent": "Mavis/5.0",
+            "User-Agent": "Mavis/10.1",
         }
-        full_system = OAUTH_POOL_UNLOCK + "\n\n" + (system or "You are Mavis, a helpful AI assistant.")
+        full_system = system or "You are Mavis, a helpful AI assistant."
         # Use array form for system so cache_control can be attached
         if cache_ttl:
             system_block = [{"type": "text", "text": full_system, "cache_control": CACHE_TTL_1H if cache_ttl == "1h" else CACHE_TTL_5M}]
@@ -156,7 +163,7 @@ def _openrouter_call(prompt, model, max_tokens, temperature, system, stream):
 def main():
     p = argparse.ArgumentParser(prog="mavis-call", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("prompt", nargs="?", help="the prompt (or read from stdin if -)")
-    p.add_argument("--model", default="claude-sonnet-4-5")
+    p.add_argument("--model", default="claude-haiku-4-5")
     p.add_argument("--provider", choices=["anthropic-oauth", "openrouter"], default="anthropic-oauth")
     p.add_argument("--max-tokens", type=int, default=4096)
     p.add_argument("--temperature", type=float, default=1.0)

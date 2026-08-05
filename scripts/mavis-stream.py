@@ -30,7 +30,7 @@ def stream_via_curl(prompt: str, model: str = "claude-haiku-4-5", system: str = 
         "-H", "content-type: application/json",
         "-H", "Authorization: Bearer " + oauth,
         "-H", "anthropic-version: 2023-06-01",
-        "-H", "anthropic-beta: oauth-2025-04-20,claude-code-20250219",
+        "-H", "anthropic-beta: oauth-2025-04-20",
         "-H", "accept: text/event-stream",
         "-H", "User-Agent: Mavis/5.0",  # required by Cloudflare edge (1010)
     ]
@@ -39,7 +39,7 @@ def stream_via_curl(prompt: str, model: str = "claude-haiku-4-5", system: str = 
     system_block = []
     if system:
         system_block.append({"type": "text", "text": system, "cache_control": {"type": "ephemeral"}})
-    system_block.insert(0, {"type": "text", "text": "You are Claude Code, Anthropic's official CLI for Claude.", "cache_control": {"type": "ephemeral"}})
+    system_block.insert(0, {"type": "text", "text": "You are Mavis, an AI assistant powered by MiniMax-M3.", "cache_control": {"type": "ephemeral"}})
 
     payload = {
         "model": model,

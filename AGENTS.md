@@ -13,8 +13,8 @@ License: MIT. Live at https://github.com/fvegiard/Mavis.
 
 ## Stack (verified working 2026-08-05)
 
+- **Model**: MiniMax-M3 (native, no OAuth pool unlock hack)
 - Node 26.6.0, Python 3.14.5, npm 12.0.2
-- Claude Code 2.1.221
 - Supabase `hzdzeleznvxzncgzqiub` (132 RAG vectors)
 - Tailscale tailnet `fvegiard@github`
 
@@ -32,10 +32,14 @@ make commit M="…"  # Kimi K2.7 review + commit
 ## LLM provider order (NEVER change without an issue)
 
 1. **openrouter-free** (Nemotron 3 Ultra 1M context, default)
-2. **claude-oauth** (paid, premium — needs `"You are Claude Code..."` system + `claude-code-20250219` beta header)
+2. **claude-oauth** (paid, premium — direct Anthropic API, no unlock prefix needed)
 3. **copilot** — RESERVED for `mavis-commit` git commits and code review (Kimi K2.7 default, Opus 4.7 via `--premium`)
 4. **groq** (fastest, Llama 3.3 70B)
 5. **openrouter** (variety)
+
+**v10.1 (2026-08-05)**: dropped the `"You are Claude Code..."` OAuth pool
+unlock prefix from `mavis-call` and `mavis-providers`. Mavis is M3, not
+Claude Code pretending. Direct API works fine without the hack.
 
 ## Hard rules for agents
 
@@ -130,6 +134,7 @@ make commit M="…"  # Kimi K2.7 review + commit
 
 ## Provenance
 
-- Created 2026-08-05 during ultra-research session
+- v10.1 (2026-08-05): dropped Claude Code OAuth pool unlock prefix
+- v10.0 (2026-08-05): created during ultra-research session
 - Pattern: AGENTS.md Field Guide 2026 (Linux Foundation, Dec 2025)
 - Sibling files: `CLAUDE.md` (Claude Code-specific), `prompts/SOUL.md` (identity), `prompts/SYSTEM_PROMPT.md` (task)
