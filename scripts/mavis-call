@@ -14,21 +14,28 @@ Supports:
 - --system PROMPT      override system prompt
 - --temperature T
 - --json               output raw JSON response
+- --cache-ttl {5m,1h}  ephemeral cache TTL (default 1h, 10x cost saving on hits)
+- --no-cache           disable cache_control entirely
 """
 import argparse
 import json
 import os
 import sys
 import time
-from pathlib import Path
-from urllib import request, error
+from urllib import error, request
 
 # --- OAuth pool unlock prefix (CRITICAL — see MEMORY) ---
 OAUTH_POOL_UNLOCK = "You are Claude Code, Anthropic's official CLI for Claude."
 
+# --- Prompt cache TTL (1h default = 90% off read, 2x write; 5m = 90% off read, 1.25x write) ---
+CACHE_TTL_1H = {"type": "ephemeral", "ttl": "1h"}
+CACHE_TTL_5M = {"type": "ephemeral", "ttl": "5m"}
+
 # --- Providers ---
-def _anthropic_oauth_call(prompt, model, max_tokens, temperature, system, stream, allow_failover=True):
-    """Direct Anthropic API via OAuth token. Tries primary, then backup on 429."""
+def _anthropic_oauth_call(prompt, model, max_tokens, temperature, system, stream, allow_failover=True, cache_ttl="1h"):
+    """Direct Anthropic API via OAuth token. Tries primary, then backup on 429.
+    Always emits cache_control on the system block to capture the 90% read discount.
+    1h TTL is the right default for long agent sessions (2026 Anthropic change)."""
     tokens = [
         os.environ.get("ANTHROPIC_OAUTH_TOKEN"),
         os.environ.get("ANTHROPIC_OAUTH_TOKEN_BACKUP"),
@@ -50,11 +57,16 @@ def _anthropic_oauth_call(prompt, model, max_tokens, temperature, system, stream
             "User-Agent": "Mavis/5.0",
         }
         full_system = OAUTH_POOL_UNLOCK + "\n\n" + (system or "You are Mavis, a helpful AI assistant.")
+        # Use array form for system so cache_control can be attached
+        if cache_ttl:
+            system_block = [{"type": "text", "text": full_system, "cache_control": CACHE_TTL_1H if cache_ttl == "1h" else CACHE_TTL_5M}]
+        else:
+            system_block = full_system
         body = {
             "model": model,
             "max_tokens": max_tokens,
             "messages": [{"role": "user", "content": prompt}],
-            "system": full_system,
+            "system": system_block,
             "temperature": temperature,
             "stream": stream,
         }
@@ -73,11 +85,14 @@ def _anthropic_oauth_call(prompt, model, max_tokens, temperature, system, stream
                     if c.get("type") == "text":
                         text += c.get("text", "")
                 usage = obj.get("usage", {})
+                # 2026 Anthropic: usage includes cache_creation_input_tokens and cache_read_input_tokens
                 return {
                     "text": text,
                     "model": obj.get("model", model),
                     "input_tokens": usage.get("input_tokens", 0),
                     "output_tokens": usage.get("output_tokens", 0),
+                    "cache_creation_input_tokens": usage.get("cache_creation_input_tokens", 0),
+                    "cache_read_input_tokens": usage.get("cache_read_input_tokens", 0),
                     "latency": latency,
                     "stop_reason": obj.get("stop_reason"),
                 }
@@ -148,6 +163,8 @@ def main():
     p.add_argument("--system", help="system prompt")
     p.add_argument("--stream", action="store_true")
     p.add_argument("--json", action="store_true", help="output raw JSON")
+    p.add_argument("--cache-ttl", choices=["5m", "1h"], default="1h", help="ephemeral cache TTL (default 1h)")
+    p.add_argument("--no-cache", action="store_true", help="disable cache_control entirely")
     args = p.parse_args()
 
     prompt = args.prompt
@@ -157,7 +174,11 @@ def main():
         p.error("prompt required (or pipe via stdin)")
 
     fn = _anthropic_oauth_call if args.provider == "anthropic-oauth" else _openrouter_call
-    result = fn(prompt, args.model, args.max_tokens, args.temperature, args.system, args.stream)
+    cache_ttl = None if args.no_cache else args.cache_ttl
+    if args.provider == "anthropic-oauth":
+        result = fn(prompt, args.model, args.max_tokens, args.temperature, args.system, args.stream, cache_ttl=cache_ttl)
+    else:
+        result = fn(prompt, args.model, args.max_tokens, args.temperature, args.system, args.stream)
     # Auto-failover: if OAuth hits 429 with no backup, fall through to OpenRouter
     if result.get("_error") == 429 and args.provider == "anthropic-oauth" and os.environ.get("OPENROUTER_API_KEY"):
         print("[anthropic-oauth 429, falling over to OpenRouter...]", file=sys.stderr)
@@ -176,9 +197,14 @@ def main():
         sys.stdout.write(result["_raw"])
         return
     print(result.get("text", ""))
-    # Footer to stderr with metrics
+    # Footer to stderr with metrics (incl cache hit/miss for cost visibility)
+    cache_read = result.get("cache_read_input_tokens", 0)
+    cache_write = result.get("cache_creation_input_tokens", 0)
+    cache_info = ""
+    if cache_read or cache_write:
+        cache_info = f" cache_read={cache_read} cache_write={cache_write}"
     print(
-        f"\n[model={result.get('model','?')} in={result.get('input_tokens',0)} out={result.get('output_tokens',0)} {result.get('latency',0):.1f}s]",
+        f"\n[model={result.get('model','?')} in={result.get('input_tokens',0)} out={result.get('output_tokens',0)}{cache_info} {result.get('latency',0):.1f}s]",
         file=sys.stderr,
     )
 

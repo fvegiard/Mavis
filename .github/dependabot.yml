@@ -1,7 +1,9 @@
 # Dependabot config for Mavis (fvegiard/Mavis)
 # https://docs.github.com/en/code-security/dependabot
+# Updated 2026-08-05 — added GitHub Actions ecosystem + malware alerts
 
 version: 2
+
 updates:
   # Python dependencies (Python 3.14)
   - package-ecosystem: "pip"
@@ -9,6 +11,8 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+      time: "04:00"
+      timezone: "America/New_York"
     commit-message:
       prefix: "deps"
     labels:
@@ -22,15 +26,22 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    # 3-day cooldown default (added by GitHub July 2026 for security)
+    # Security updates are unaffected
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
     commit-message:
       prefix: "ci"
     labels:
       - "dependencies"
       - "ci"
     open-pull-requests-limit: 3
+
+# Enable malware alerts (since July 28 2026 covers PyPI + npm)
+# Settings → Code security → Dependabot → Malware alerts = ON
+# This file references it; toggle in repo settings UI.

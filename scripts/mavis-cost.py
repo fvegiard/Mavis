@@ -93,7 +93,7 @@ def summarize(entries: list, period: str = "all"):
         cutoff = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
         entries = [e for e in entries if e["timestamp"] >= cutoff]
 
-    by_model = defaultdict(lambda: {"calls": 0, "input": 0, "output": 0, "cost": 0.0})
+    by_model = defaultdict(lambda: {"calls": 0, "input": 0, "output": 0, "cost": 0.0, "cache_read": 0, "cache_write": 0})
     for e in entries:
         e_cost = e.get("cost_usd", e.get("cost", 0))
         m = by_model[e["model"]]
@@ -101,18 +101,28 @@ def summarize(entries: list, period: str = "all"):
         m["input"] = m.get("input", 0) + e.get("input", 0)
         m["output"] = m.get("output", 0) + e.get("output", 0)
         m["cost"] = m.get("cost", 0) + e_cost
+        m["cache_read"] = m.get("cache_read", 0) + e.get("cache_read", 0)
+        m["cache_write"] = m.get("cache_write", 0) + e.get("cache_write", 0)
 
     total_cost = sum(m["cost"] for m in by_model.values())
     total_calls = sum(m["calls"] for m in by_model.values())
+    total_cache_read = sum(m.get("cache_read", 0) for m in by_model.values())
+    total_cache_write = sum(m.get("cache_write", 0) for m in by_model.values())
+    total_input = sum(m.get("input", 0) for m in by_model.values())
 
     print(f"📊 Mavis cost report ({period})")
     print(f"   Total calls: {total_calls}")
     print(f"   Total cost: ${total_cost:.4f}")
+    if total_cache_read or total_cache_write:
+        hit_rate = (total_cache_read / max(total_cache_read + total_input, 1)) * 100
+        # Estimated savings (10% of base input cost on cache_read vs 100%)
+        est_savings = total_cache_read * 0.9 * 3.00 / 1_000_000  # rough: assume $3/M base
+        print(f"   Cache hit: {hit_rate:.1f}% (read={total_cache_read:,} write={total_cache_write:,}, ~${est_savings:.4f} saved)")
     print()
-    print(f"   {'Model':<25} {'Calls':>6} {'Input tok':>12} {'Output tok':>12} {'Cost':>10}")
-    print(f"   {'-'*25} {'-'*6} {'-'*12} {'-'*12} {'-'*10}")
+    print(f"   {'Model':<25} {'Calls':>6} {'Input tok':>12} {'Output tok':>12} {'Cache rd':>10} {'Cost':>10}")
+    print(f"   {'-'*25} {'-'*6} {'-'*12} {'-'*12} {'-'*10} {'-'*10}")
     for model, stats in sorted(by_model.items(), key=lambda x: -x[1]["cost"]):
-        print(f"   {model:<25} {stats['calls']:>6} {stats['input']:>12} {stats['output']:>12} ${stats['cost']:>9.4f}")
+        print(f"   {model:<25} {stats['calls']:>6} {stats['input']:>12} {stats['output']:>12} {stats.get('cache_read',0):>10} ${stats['cost']:>9.4f}")
 
 
 def optimize(entries: list):

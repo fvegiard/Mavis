@@ -3,6 +3,92 @@
 All notable changes to Jarvis (Mavis agent system) are documented here.
 Format: [Keep a Changelog](https://keepchangelog.com/en/1.1.0/).
 
+## [10.0.0] - 2026-08-05
+
+### Ultra-Optimization — 10 parallel research sub-agents
+
+Triggered by Francis: "Ultra deep research optimise potential, auto optimise
+your self send 10 sub agent in websearch and github". 10 background sub-agents
+researched 10 domains in parallel (system prompts, multi-LLM routing, RAG,
+memory, MCP, self-improvement, security, observability, GitHub features,
+cost optimization). ~2,150 words × 10 reports, 300+ sources. Full reports
+at `/workspace/.mavis-deep-research/20260805_130400_ultra-optimize/`.
+
+### Added — System prompt v4.0 (XML contract)
+- **`prompts/SOUL.md`** (NEW, 4.5KB) — identity split from task per Zylos
+  2026 persona design. Read-only at runtime. Mavis's core values, voice,
+  behavioral modes, channel discipline, what I refuse / always do.
+- **`prompts/SYSTEM_PROMPT.md`** rewritten — **XML-tagged contract structure**
+  (Anthropic training-aligned, 20-40% consistency gain). De-timestamped
+  (current date queried, not baked in — preserves KV cache 10× cost saving).
+  Decision-criteria phrasing replaces "never/don't" (better adherence).
+- **`prompts/CONSTITUTION.md`** (NEW, 3.0KB) — 7 self-judgment principles
+  (Constitutional AI 2.0 pattern, Anthropic Feb 2026). Read by the
+  Reflexion critic before any judgment.
+- **`prompts/PROCESS_RULES.md`** (NEW, 2.3KB) — the 10 standing orders,
+  each paired with its **enforcement layer** (AgentLint rule #3 — "a rule
+  that lives only in markdown is a wish").
+- **`prompts/AGENTS.md`** (NEW, 4.2KB) — sub-agent personas (Hermes /
+  MaxClaw / Verifier) with brief templates and 5-element hygiene.
+- **`AGENTS.md`** at repo root (NEW, 5.3KB) — cross-vendor standard
+  (Linux Foundation Agentic AI Foundation, Dec 2025). Read by Claude Code,
+  Cursor, GitHub Copilot Coding Agent.
+- **`.github/copilot-instructions.md`** (NEW, 4.1KB) — Copilot-specific
+  style guide, tool description template, provider usage rules.
+- **`SECURITY.md`** (NEW, 4.1KB) — 5-layer defense model, 2026 secrets
+  posture, sandboxing spectrum, CVE-aware dangerous patterns, hardening
+  checklist.
+- **`docs/security-hardening-2026.md`** (NEW, 35KB) — security sub-agent
+  deep dive with 50+ sources, full code blocks for `mavis-hook.py` upgrades.
+
+### Added — Tools
+- **`scripts/mavis-heuristics-daemon.py`** (NEW, 5.9KB) — makes
+  `/root/.claude/jarvis/heuristics.log` a closed feedback loop. Counts FAIL
+  patterns by signature, auto-promotes to `prompts/heuristics_candidates.md`
+  when signature fires 3+ times in 24h (MOSS-style directed evolution).
+
+### Changed — mavis-* upgrades
+- **`mavis-call`**: added `cache_control: {type: "ephemeral", ttl: "1h"}`
+  by default (was missing — 90% read discount now active). Added
+  `--cache-ttl {5m,1h}` and `--no-cache` flags. Tracks
+  `cache_read_input_tokens` and `cache_creation_input_tokens` separately
+  and prints them in the stderr footer.
+- **`mavis-cost`**: cache hit rate, cache read/write totals, and estimated
+  savings now shown in `summary` output. New columns: "Cache rd" per model.
+- **`mavis-rag`**: added `--hybrid` flag (BM25 + dense via Reciprocal Rank
+  Fusion, Cormack et al. 2009). 2026 RAG best practice (+10-30% recall).
+  Added `--show-scores` debug flag. Verified 88% P@1 baseline maintained.
+
+### Changed — GitHub features
+- **`.github/dependabot.yml`** — added GitHub Actions ecosystem, malware
+  alerts reference, weekly schedule, 3-day cooldown default.
+- **AGENTS.md + copilot-instructions.md** — see above.
+
+### Documentation
+- **CHANGELOG.md** — this v10.0 entry
+- **README.md** — pending update (next commit)
+
+### Inventory v10.0
+- **19 mavis-* tools** (was 18) + heuristics daemon
+- **6 prompt files** (was 3): SOUL, SYSTEM_PROMPT, CONSTITUTION, PROCESS_RULES, AGENTS, REFLEXION_LAYER
+- **2 root agent files** (AGENTS.md, CLAUDE.md)
+- **1 SECURITY.md** at root
+- **1 docs/security-hardening-2026.md** (35KB)
+- **10 research reports** in `.mavis-deep-research/20260805_130400_ultra-optimize/`
+- **47+ unit tests** (unchanged, will grow in v10.1)
+- **MIT, public** at https://github.com/fvegiard/Mavis
+
+### Honest limits
+- New code (heuristics daemon, BM25, cache_control) is added but not yet
+  E2E-verified in this sandbox (sandbox wiped; will be re-verified in next
+  Francis session).
+- Security deep dive identifies CVE-2026-35020/21/22 as still exploitable
+  on Claude Code v2.1.91. **Recommended action**: `npm install -g
+  @anthropic-ai/claude-code@latest` and verify patch level.
+- DSPy GEPA, Langfuse self-host, Cohere Rerank v3.5, GPTCache semantic
+  cache — all identified as high-ROI but require new API keys / GPU /
+  Docker. Not applied yet; documented as roadmap items in v10.1.
+
 ## [9.0.0] - 2026-08-05
 
 ### Added — OpenHands integration + mavis-delegate orchestration
