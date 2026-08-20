@@ -63,6 +63,8 @@ def call_llm(model, system, user, max_tokens=1500, temperature=0.3, api_key=None
             {"role": "user", "content": user},
         ],
     }
+    # Stats tracking
+    _stats = _Stats()
     data = json.dumps(payload).encode()
     req = urllib.request.Request(OPENROUTER_URL, data=data, headers={
         "Authorization": f"Bearer {api_key}",
@@ -73,8 +75,10 @@ def call_llm(model, system, user, max_tokens=1500, temperature=0.3, api_key=None
     try:
         with urllib.request.urlopen(req, timeout=90) as r:
             body = json.loads(r.read().decode())
+        usage = body.get("usage", {})
+        _stats.log(model, usage)
         return {"ok": True, "text": body["choices"][0]["message"]["content"],
-                "model": model, "usage": body.get("usage", {})}
+                "model": model, "usage": usage}
     except urllib.error.HTTPError as e:
         body = ""
         try: body = e.read().decode()[:300]
@@ -155,6 +159,55 @@ def load_md_agents():
     return agents
 
 MD_AGENTS = load_md_agents()
+
+# ============================================================
+# Stats logger (tracks every LLM call to ~/.mavis/stats.jsonl)
+# ============================================================
+STATS_DIR = Path(os.environ.get('HOME', '/root')) / '.mavis'
+STATS_FILE = STATS_DIR / 'stats.jsonl'
+
+class _Stats:
+    def __init__(self):
+        STATS_DIR.mkdir(parents=True, exist_ok=True)
+    def log(self, model, usage):
+        if not usage: return
+        try:
+            rec = {
+                "ts": int(__import__('time').time()),
+                "model": model,
+                "prompt_tokens": usage.get("prompt_tokens", 0),
+                "completion_tokens": usage.get("completion_tokens", 0),
+                "total_tokens": usage.get("total_tokens", 0),
+                "cost": usage.get("cost", 0.0),
+            }
+            with open(STATS_FILE, 'a') as f:
+                f.write(json.dumps(rec) + '\n')
+        except Exception as e:
+            pass  # don't break the LLM call if stats fail
+    def aggregate(self, since_ts=None):
+        if not STATS_FILE.exists(): return None
+        total = {"calls": 0, "prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0, "cost": 0.0, "by_model": {}}
+        try:
+            for line in STATS_FILE.read_text().splitlines():
+                if not line.strip(): continue
+                rec = json.loads(line)
+                if since_ts and rec.get("ts", 0) < since_ts: continue
+                total["calls"] += 1
+                total["prompt_tokens"] += rec.get("prompt_tokens", 0)
+                total["completion_tokens"] += rec.get("completion_tokens", 0)
+                total["total_tokens"] += rec.get("total_tokens", 0)
+                total["cost"] += rec.get("cost", 0.0)
+                m = rec.get("model", "?")
+                bm = total["by_model"].setdefault(m, {"calls": 0, "tokens": 0, "cost": 0.0})
+                bm["calls"] += 1
+                bm["tokens"] += rec.get("total_tokens", 0)
+                bm["cost"] += rec.get("cost", 0.0)
+        except Exception as e:
+            pass
+        return total
+
+# Initialize stats singleton
+_Stats()
 
 # ============================================================
 # Subcommands
@@ -431,6 +484,165 @@ def cmd_config_show(args):
         print(f"  {k:<15} type={v.get('type','?')}")
     print(f"\nMavis section: {json.dumps(cfg.get('mavis',{}), indent=2)}\n")
 
+def cmd_config_get(args):
+    """Get a config key (dotted path like 'provider.openrouter.options.baseURL')."""
+    cfg_path = SCRIPT_DIR / "config" / "mavis.json"
+    if not cfg_path.exists():
+        print(f"ERROR: {cfg_path} not found"); return
+    cfg = json.loads(cfg_path.read_text())
+    path = args.key
+    cur = cfg
+    for part in path.split('.'):
+        if isinstance(cur, dict) and part in cur:
+            cur = cur[part]
+        else:
+            print(f"ERROR: key '{path}' not found (failed at '{part}')"); return
+    print(json.dumps(cur, indent=2))
+
+def cmd_config_set(args):
+    """Set a config key. Usage: mavis config set <key> <json-value>"""
+    cfg_path = SCRIPT_DIR / "config" / "mavis.json"
+    if not cfg_path.exists():
+        print(f"ERROR: {cfg_path} not found"); return
+    cfg = json.loads(cfg_path.read_text())
+    path = args.key
+    # Parse value as JSON
+    try:
+        val = json.loads(args.value)
+    except json.JSONDecodeError:
+        val = args.value  # fallback to string
+    # Traverse path
+    parts = path.split('.')
+    cur = cfg
+    for p in parts[:-1]:
+        if p not in cur or not isinstance(cur[p], dict):
+            cur[p] = {}
+        cur = cur[p]
+    cur[parts[-1]] = val
+    # Backup + write
+    bak = cfg_path.with_suffix('.json.bak')
+    bak.write_text(cfg_path.read_text())
+    cfg_path.write_text(json.dumps(cfg, indent=2))
+    print(f"✅ Set {path} = {json.dumps(val)}")
+    print(f"   Backup: {bak}")
+
+def cmd_models(args):
+    """List models from mavis.json. Optionally filter by provider."""
+    cfg_path = SCRIPT_DIR / "config" / "mavis.json"
+    if not cfg_path.exists():
+        print(f"ERROR: {cfg_path} not found"); return
+    cfg = json.loads(cfg_path.read_text())
+    providers = cfg.get('provider', {})
+    provider_filter = getattr(args, 'provider', None)
+    total = 0
+    print(f"\n{'Provider':<14} {'Model ID':<45} {'Display name':<30} {'Context'}")
+    print("-" * 100)
+    for prov_id, prov in sorted(providers.items()):
+        if provider_filter and prov_id != provider_filter: continue
+        models = prov.get('models', {})
+        if not models:
+            print(f"  {prov_id:<12} (no models in config — uses provider's default list)")
+            continue
+        for mid, m in sorted(models.items()):
+            ctx = m.get('context', '?')
+            name = m.get('name', mid)
+            print(f"  {prov_id:<12} {mid:<43} {name:<30} {ctx}")
+            total += 1
+    print(f"\n{total} models in mavis.json")
+    if not provider_filter:
+        print("Filter by provider: mavis models openrouter\n")
+
+def cmd_stats(args):
+    """Show aggregate token usage and cost from ~/.mavis/stats.jsonl."""
+    if not STATS_FILE.exists():
+        print(f"\nNo stats yet. Run a few `mavis run` calls first.\n")
+        print(f"Stats file: {STATS_FILE}\n")
+        return
+    s = _Stats().aggregate()
+    if not s or s["calls"] == 0:
+        print(f"\nNo calls logged yet.\n"); return
+    print(f"\n=== Mavis stats ({s['calls']} LLM calls) ===")
+    print(f"Total tokens:  {s['total_tokens']:>12,}")
+    print(f"  Prompt:      {s['prompt_tokens']:>12,}")
+    print(f"  Completion:  {s['completion_tokens']:>12,}")
+    print(f"Total cost:    ${s['cost']:.4f}")
+    print(f"\nBy model:")
+    print(f"  {'Model':<45} {'Calls':>6} {'Tokens':>10} {'Cost':>10}")
+    print("  " + "-" * 71)
+    for m, bm in sorted(s["by_model"].items(), key=lambda x: -x[1]["cost"]):
+        print(f"  {m:<45} {bm['calls']:>6} {bm['tokens']:>10,} ${bm['cost']:>9.4f}")
+    print(f"\nStats file: {STATS_FILE}\n")
+
+def cmd_attach(args):
+    """Connect to a running mavis serve. Interactive REPL."""
+    import urllib.request
+    url = args.url.rstrip('/')
+    print(f"mavis attach {url}")
+    print("Type 'help' for commands, 'quit' to exit.\n")
+    while True:
+        try:
+            line = input("mavis> ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print(); break
+        if not line: continue
+        if line in ('quit', 'exit', 'q'):
+            break
+        if line == 'help':
+            print("  /health      GET /health")
+            print("  /skills      GET /skills (count)")
+            print("  /agents      GET /agents (list)")
+            print("  <message>    POST /run with <message> in default mode")
+            print("  /mode=X      change default mode (code/architect/ask/debug/orchestrator)")
+            print("  /agent=X     change default agent (custom .md)")
+            print("  quit         exit")
+            continue
+        cur_mode = 'orchestrator'
+        cur_agent = None
+        if line.startswith('/health'):
+            try:
+                r = urllib.request.urlopen(url + '/health', timeout=10)
+                print(r.read().decode()[:500])
+            except Exception as e:
+                print(f"ERROR: {e}")
+        elif line.startswith('/skills'):
+            try:
+                r = urllib.request.urlopen(url + '/skills', timeout=10)
+                d = json.loads(r.read().decode())
+                print(f"{len(d.get('skills',[]))} skills")
+            except Exception as e:
+                print(f"ERROR: {e}")
+        elif line.startswith('/agents'):
+            try:
+                r = urllib.request.urlopen(url + '/agents', timeout=10)
+                d = json.loads(r.read().decode())
+                for a in d.get('agents', []):
+                    print(f"  {a['name']:<28} {a.get('description','')[:60]}")
+            except Exception as e:
+                print(f"ERROR: {e}")
+        elif line.startswith('/mode='):
+            cur_mode = line.split('=',1)[1]
+            print(f"  mode = {cur_mode}")
+        elif line.startswith('/agent='):
+            cur_agent = line.split('=',1)[1]
+            print(f"  agent = {cur_agent}")
+        else:
+            # POST /run
+            body = json.dumps({"message": line, "mode": cur_mode, "agent": cur_agent}).encode()
+            req = urllib.request.Request(url + '/run', data=body, headers={'Content-Type': 'application/json'}, method='POST')
+            try:
+                with urllib.request.urlopen(req, timeout=90) as r:
+                    d = json.loads(r.read().decode())
+                if d.get('ok'):
+                    print(d.get('text', ''))
+                    if d.get('usage'):
+                        u = d['usage']
+                        print(f"\n[usage: prompt={u.get('prompt_tokens','?')} completion={u.get('completion_tokens','?')} cost=${u.get('cost','?')}]")
+                else:
+                    print(f"ERROR: {d.get('error','?')}")
+            except Exception as e:
+                print(f"ERROR: {e}")
+    print("Disconnected.")
+
 # ============================================================
 # CLI parser
 # ============================================================
@@ -477,16 +689,32 @@ See also: mavis-swarm, mavis-swarm-llm (in /usr/local/bin/).
     st.add_argument('--workers', '-n', type=int, default=5)
     st.add_argument('--real', action='store_true', help='Use real LLM workers (costs API credits)')
     st.add_argument('--model', default='moonshotai/kimi-k3', help='Model for real workers')
-    sub.add_parser('config', help='Show mavis.json config')
+    sc = sub.add_parser('config', help='Show or edit mavis.json config')
+    sc.add_argument('action', nargs='?', default='show', help='show | get | set')
+    sc.add_argument('key', nargs='?', help='Config key (dotted path, for get/set)')
+    sc.add_argument('value', nargs='?', help='JSON value (for set)')
+    sm = sub.add_parser('models', help='List available models from mavis.json')
+    sm.add_argument('provider', nargs='?', help='Filter by provider ID (e.g. openrouter)')
+    sub.add_parser('stats', help='Aggregate token usage + cost from stats.jsonl')
+    sat = sub.add_parser('attach', help='Connect to a running mavis serve (REPL)')
+    sat.add_argument('url', help='URL of the mavis server (e.g. http://localhost:7741)')
 
     args = p.parse_args()
     if not args.cmd:
         p.print_help(); return
+    # Sub-action dispatch for config
+    if args.cmd == 'config':
+        action = getattr(args, 'action', 'show') or 'show'
+        if action == 'show': cmd_config_show(args)
+        elif action == 'get': cmd_config_get(args)
+        elif action == 'set': cmd_config_set(args)
+        else: print(f"ERROR: unknown config action '{action}'. Use: show | get | set")
+        return
     dispatch = {
         'provider': cmd_provider_list, 'skills': cmd_skills, 'modes': cmd_modes,
         'run': cmd_run, 'skills-rag': cmd_skills_rag, 'serve': cmd_serve,
         'mcp': cmd_mcp, 'agents': cmd_agent_list, 'session': cmd_session_list,
-        'team': cmd_team, 'config': cmd_config_show,
+        'team': cmd_team, 'models': cmd_models, 'stats': cmd_stats, 'attach': cmd_attach,
     }
     if args.cmd in dispatch:
         dispatch[args.cmd](args)
