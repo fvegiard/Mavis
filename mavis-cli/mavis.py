@@ -433,6 +433,75 @@ def cmd_agent_list(args):
     print(f"\n{len(MD_AGENTS)} .md agents loaded from {AGENTS_DIR}")
     print("Run: mavis run --agent=<name> '<message>'\n")
 
+def cmd_agent_new(args):
+    """Create a new .md agent from a template. Usage: mavis agent new <name> [--description=X] [--model=X] [--mode=X]"""
+    name = args.name
+    if not name or not re.match(r'^[a-z0-9][a-z0-9_-]{0,62}$', name):
+        print(f"ERROR: name must be kebab-case (lowercase, hyphens, digits). Got: '{name}'")
+        return
+    target = AGENTS_DIR / f"{name}.md"
+    if target.exists():
+        print(f"ERROR: {target} already exists. Edit manually or use a different name."); return
+    description = getattr(args, 'description', None) or f"<describe what {name} does>"
+    model = getattr(args, 'model', None) or 'moonshotai/kimi-k3'
+    mode = getattr(args, 'mode', None) or 'subagent'
+    temperature = getattr(args, 'temperature', None) or 0.3
+    steps = getattr(args, 'steps', None) or 30
+    # Default body template
+    body = getattr(args, 'body', None) or f"""You are the {name} agent. Your job is to:
+
+1. ...
+2. ...
+3. ...
+
+## When to invoke
+
+- <trigger condition 1>
+- <trigger condition 2>
+
+## Output format
+
+<what you should produce>
+
+## Anti-patterns
+
+- <what NOT to do>
+"""
+    content = f"""---
+description: "{description}"
+mode: {mode}
+model: {model}
+temperature: {temperature}
+displayName: "{name.replace('-', ' ').title()}"
+color: "#888888"
+steps: {steps}
+---
+
+{body}
+"""
+    AGENTS_DIR.mkdir(parents=True, exist_ok=True)
+    target.write_text(content)
+    print(f"✅ Created agent: {target}")
+    print(f"   Edit the body, then test: mavis run --agent={name} '<your test prompt>'")
+    # Re-load agents
+    global MD_AGENTS
+    MD_AGENTS = load_md_agents()
+    print(f"   Total .md agents loaded: {len(MD_AGENTS)}")
+
+def cmd_agent_edit(args):
+    """Open an .md agent in $EDITOR (or print path if no editor)."""
+    name = args.name
+    target = AGENTS_DIR / f"{name}.md"
+    if not target.exists():
+        print(f"ERROR: {target} not found. Available: {', '.join(MD_AGENTS)}"); return
+    editor = os.environ.get('EDITOR', 'vi')
+    if not os.environ.get('EDITOR'):
+        print(f"  File: {target}")
+        print(f"  Set $EDITOR to open automatically. Current default: {editor}")
+        return
+    print(f"Opening {target} in {editor}...")
+    subprocess.run([editor, str(target)])
+
 def cmd_session_list(args):
     """List active sessions (delegates to mavis tool)."""
     r = subprocess.run(["mavis", "session", "list", "limit=10"], capture_output=True, text=True,
@@ -683,6 +752,15 @@ See also: mavis-swarm, mavis-swarm-llm (in /usr/local/bin/).
     ss.add_argument('--mode', default='orchestrator')
     sub.add_parser('mcp', help='List/manage MCP servers')
     sub.add_parser('agents', help='List .md custom agents (Kilo format)')
+    sa = sub.add_parser('agent', help='Manage .md agents')
+    sa.add_argument('subcmd', nargs='?', default='list', help='list | new | edit')
+    sa.add_argument('name', nargs='?', help='Agent name (kebab-case)')
+    sa.add_argument('--description', help='Agent description (for `agent new`)')
+    sa.add_argument('--model', help='Model (provider/model-id)')
+    sa.add_argument('--mode', help='subagent | primary | all')
+    sa.add_argument('--temperature', type=float, help='0.0-1.0')
+    sa.add_argument('--steps', type=int, help='Max agentic iterations')
+    sa.add_argument('--body', help='Custom body text')
     sub.add_parser('session', help='List active sessions')
     st = sub.add_parser('team', help='Run a swarm (Kimi K3-style)')
     st.add_argument('goal', nargs='+', help='Swarm goal')
@@ -716,6 +794,14 @@ See also: mavis-swarm, mavis-swarm-llm (in /usr/local/bin/).
         'mcp': cmd_mcp, 'agents': cmd_agent_list, 'session': cmd_session_list,
         'team': cmd_team, 'models': cmd_models, 'stats': cmd_stats, 'attach': cmd_attach,
     }
+    # Sub-action dispatch for agent
+    if args.cmd == 'agent':
+        subcmd = getattr(args, 'subcmd', 'list') or 'list'
+        if subcmd == 'list': cmd_agent_list(args)
+        elif subcmd == 'new': cmd_agent_new(args)
+        elif subcmd == 'edit': cmd_agent_edit(args)
+        else: print(f"ERROR: unknown agent subcmd '{subcmd}'. Use: list | new | edit")
+        return
     if args.cmd in dispatch:
         dispatch[args.cmd](args)
     else:
