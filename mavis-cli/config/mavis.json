@@ -1,0 +1,150 @@
+{
+  "$schema": "https://mavis.local/config.schema.json",
+  "name": "Mavis M3 — mavis-production",
+  "version": "10.1.0",
+  "model": "moonshotai/kimi-k3",
+  "small_model": "meta-llama/llama-3.1-70b-instruct",
+  "default_agent": "orchestrator",
+  "default_mode": "orchestrator",
+  "enabled_providers": [
+    "openrouter",
+    "anthropic",
+    "openai",
+    "groq",
+    "deepseek",
+    "gemini",
+    "ollama"
+  ],
+  "disabled_providers": [],
+  "provider": {
+    "openrouter": {
+      "name": "OpenRouter",
+      "npm": "@openrouter/ai-sdk-provider",
+      "env": ["OPENROUTER_API_KEY"],
+      "options": {
+        "apiKey": "$OPENROUTER_API_KEY",
+        "baseURL": "https://openrouter.ai/api/v1",
+        "timeout": 90000,
+        "provider": {
+          "data_collection": "deny",
+          "zdr": true
+        }
+      },
+      "models": {
+        "moonshotai/kimi-k3": { "name": "Kimi K3", "context": 256000 },
+        "meta-llama/llama-3.1-70b-instruct": { "name": "Llama 3.1 70B", "context": 131072 },
+        "meta-llama/llama-3.1-405b-instruct": { "name": "Llama 3.1 405B", "context": 131072 },
+        "anthropic/claude-sonnet-4": { "name": "Claude Sonnet 4", "context": 200000 },
+        "anthropic/claude-haiku-4-5": { "name": "Claude Haiku 4.5", "context": 200000 },
+        "openai/gpt-5": { "name": "GPT-5", "context": 200000 },
+        "openai/o1": { "name": "o1", "context": 200000 },
+        "google/gemini-2.5-pro": { "name": "Gemini 2.5 Pro", "context": 2000000 },
+        "deepseek/deepseek-chat": { "name": "DeepSeek V3", "context": 64000 },
+        "x-ai/grok-4": { "name": "Grok 4", "context": 131072 }
+      }
+    },
+    "anthropic": {
+      "name": "Anthropic",
+      "env": ["ANTHROPIC_API_KEY", "ANTHROPIC_OAUTH_TOKEN"],
+      "options": { "timeout": 90000 }
+    },
+    "openai": {
+      "name": "OpenAI",
+      "env": ["OPENAI_API_KEY_1", "OPENAI_API_KEY_2", "OPENAI_API_KEY_3"],
+      "options": { "timeout": 90000 }
+    },
+    "groq": {
+      "name": "Groq",
+      "env": ["GROQ_API_KEY"],
+      "options": { "timeout": 30000 }
+    },
+    "deepseek": {
+      "name": "DeepSeek",
+      "env": ["DEEPSEEK_API_KEY"],
+      "options": { "baseURL": "https://api.deepseek.com/v1" }
+    },
+    "gemini": {
+      "name": "Google Gemini",
+      "env": ["GEMINI_API_KEY_1", "GEMINI_API_KEY_2"],
+      "options": { "timeout": 90000 }
+    },
+    "ollama": {
+      "name": "Ollama Cloud",
+      "env": ["OLLAMA_CLOUD_API_KEY"],
+      "options": { "baseURL": "https://ollama.com" }
+    }
+  },
+  "agent": {
+    "code": {
+      "model": "anthropic/claude-sonnet-4",
+      "temperature": 0.2,
+      "steps": 50,
+      "permission": { "edit": "allow", "bash": "ask" }
+    },
+    "architect": {
+      "model": "moonshotai/kimi-k3",
+      "temperature": 0.4,
+      "steps": 30,
+      "permission": { "edit": "deny", "bash": "deny" }
+    },
+    "ask": {
+      "model": "meta-llama/llama-3.1-70b-instruct",
+      "temperature": 0.1,
+      "steps": 5,
+      "permission": { "edit": "deny", "bash": "deny", "webfetch": "allow" }
+    },
+    "debug": {
+      "model": "anthropic/claude-sonnet-4",
+      "temperature": 0.1,
+      "steps": 100,
+      "permission": { "edit": "allow", "bash": "allow" }
+    },
+    "orchestrator": {
+      "model": "moonshotai/kimi-k3",
+      "temperature": 0.3,
+      "steps": 100,
+      "permission": { "edit": "allow", "bash": "allow", "task": { "*": "allow" } }
+    }
+  },
+  "mcp": {
+    "supabase": {
+      "type": "remote",
+      "url": "https://mcp.supabase.com/mcp",
+      "headers": { "Authorization": "Bearer $SUPABASEMGMT_API_KEY" },
+      "enabled": true,
+      "timeout": 30000
+    },
+    "github": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+      "environment": { "GITHUB_TOKEN": "$GITHUB_TOKEN" },
+      "enabled": true,
+      "timeout": 30000
+    },
+    "fetch": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-fetch"],
+      "enabled": true,
+      "timeout": 15000
+    }
+  },
+  "permission": {
+    "edit": "ask",
+    "bash": "ask",
+    "webfetch": "allow",
+    "task": { "*": "allow" }
+  },
+  "mavis": {
+    "schema_version": "1.0",
+    "supabase_ref": "tuwshovazpqzsvwnicgj",
+    "supabase_schema": "mavis",
+    "items_table": "mavis.items",
+    "ingest_count_target": 228,
+    "swarm": {
+      "default_workers": 5,
+      "max_workers": 300,
+      "max_steps_per_orchestrator": 15,
+      "max_tool_calls_per_task": 4000
+    }
+  }
+}
