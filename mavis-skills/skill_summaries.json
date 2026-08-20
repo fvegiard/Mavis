@@ -1,0 +1,613 @@
+{
+  "team": {
+    "when_to_use": [
+      "Multi-agent adversarial plan (producer + verifier)",
+      "Code change with adversarial review",
+      "Multi-source research with parallel angles",
+      "Migration with backward-compat risk",
+      "Auth/payments/data-access change (high-stakes)",
+      "Cross-codebase rename/sweep",
+      "Single-author report or decision memo",
+      "Engineering handbook or architecture review"
+    ],
+    "when_not_to_use": [
+      "Single trivial task (just do it directly)",
+      "Read-only exploration (use the explore sub-agent)",
+      "No clear deliverable shape yet"
+    ],
+    "use_cases": [
+      "Refactor 3 modules with test verification",
+      "Research 5 competitors in parallel + synthesis",
+      "Build a 4-section market analysis with section owners",
+      "Auth flow change with security verifier"
+    ],
+    "phases": [
+      "1. Pick template (code | research | report)",
+      "2. Adapt template: replace placeholders, write self-contained prompts",
+      "3. Launch via `team run`",
+      "4. Watch heartbeat every 5min, intervene if needed (steer, extend-timeout, unblock, cancel)",
+      "5. Submit decision (accept | reject | manual_retry | override_accept)"
+    ],
+    "related": [
+      "code-savant (use as the worker's coding skill)",
+      "deep-research (use as the research worker's skill)",
+      "gstack-openclaw-investigate (debugging templates)"
+    ],
+    "prerequisites": [
+      "Roster has at least 1 producer + 1 verifier agent",
+      "Task has a clear deliverable shape"
+    ],
+    "deliverable": "Multi-agent plan executed end-to-end with producer/verifier cycle, owner decisions at each cycle boundary"
+  },
+  "code-savant": {
+    "when_to_use": [
+      "Any coding task: simple script, moderate refactor, complex feature, enterprise system",
+      "When you need a disciplined plan \u2192 implement \u2192 review \u2192 deliver workflow",
+      "Code quality matters (PEP 8, TypeScript, language idioms)",
+      "Need structured self-review checklist"
+    ],
+    "when_not_to_use": [
+      "Non-coding tasks (research, writing, design)",
+      "Trivial 1-line fixes (overkill)"
+    ],
+    "use_cases": [
+      "Build a Python script to parse CSVs",
+      "Refactor 500-line module into 3 modules",
+      "Build a TypeScript Express API with auth",
+      "Enterprise microservice with multiple modules"
+    ],
+    "phases": [
+      "1. PLAN: scope, complexity (Simple|Moderate|Complex|Enterprise), architecture, risk",
+      "2. RESEARCH: only as needed, prefer official docs (Tier 1 sources)",
+      "3. IMPLEMENT: follow the spec, document as you code, handle errors",
+      "4. QA: full review checklist (functional, quality, security, performance, docs)",
+      "5. DELIVER: final validation, summary, how-to-use"
+    ],
+    "related": [
+      "team (use as the verifier in adversarial plans)",
+      "worktree-management (git worktree for isolated dev)",
+      "skill-creator (use to document new skills you build)"
+    ],
+    "prerequisites": [
+      "Task clearly stated (or you make reasonable assumptions + flag them)",
+      "LSP/linter available (ruff, biome, etc.)"
+    ],
+    "deliverable": "Working code with documentation, review-passed, plus a summary of what was built + how to use"
+  },
+  "deep-research": {
+    "when_to_use": [
+      "Multi-source research with citation requirements",
+      "Market/industry analysis",
+      "Competitor/technology landscape",
+      "Trend judgment for strategy decisions",
+      "Academic-style fact verification"
+    ],
+    "when_not_to_use": [
+      "Single-source quick lookup (use web_search directly)",
+      "Internal data analysis (use the data directly)",
+      "Opinion-only questions (no sources to verify)"
+    ],
+    "use_cases": [
+      "Research 5 competitors in X space with comparison table",
+      "Map the landscape of vector databases for RAG",
+      "Verify a controversial claim with 3+ authoritative sources"
+    ],
+    "phases": [
+      "1. Confirm factual background (what's already known)",
+      "2. Understand the question and judge direction",
+      "3. Deep analysis and research plan",
+      "4. Search, verify, form research understanding",
+      "5. Write final answer with citations"
+    ],
+    "related": [
+      "team (research template for parallel investigators)",
+      "web_search (the primary tool for Step 4)",
+      "market-research (specialized TAM/SAM/SOM variant)"
+    ],
+    "prerequisites": [
+      "Topic is well-defined",
+      "Acceptable to spend 30+ min on a thorough report"
+    ],
+    "deliverable": "Long-form research report with cited sources, structured findings, and synthesis"
+  },
+  "skill-creator": {
+    "when_to_use": [
+      "Create a new Mavis skill (a reusable procedure)",
+      "User has a repeated workflow that should be a skill",
+      "Document an existing capability for future sessions"
+    ],
+    "when_not_to_use": [
+      "One-off task (just do it)",
+      "Documenting code (use docstrings instead)"
+    ],
+    "use_cases": [
+      "Turn the 'weekly retro' workflow into a reusable skill",
+      "Create a new 'deploy to staging' skill with the steps Francis prefers",
+      "Document how to use a specific API as a skill"
+    ],
+    "phases": [
+      "1. Identify the repeated workflow",
+      "2. Draft the SKILL.md with triggers, workflow, conventions",
+      "3. Test the skill on a real task",
+      "4. Iterate based on failure modes"
+    ],
+    "related": [
+      "skill-builder (broader skill-building reference)",
+      "worktree-management (isolated work during skill dev)"
+    ],
+    "prerequisites": [
+      "The workflow has been used at least 2-3 times (otherwise premature)"
+    ],
+    "deliverable": "SKILL.md file at /workspace/.skills/<name>/SKILL.md, auto-synced to platform"
+  },
+  "worktree-management": {
+    "when_to_use": [
+      "Any non-trivial code change",
+      "Working on multiple features in parallel without stepping on yourself",
+      "Before executing a team plan that touches code",
+      "Experimental work that might need rollback"
+    ],
+    "when_not_to_use": [
+      "Single-line edits",
+      "Read-only exploration"
+    ],
+    "use_cases": [
+      "Isolate 'refactor X' from 'add feature Y' in separate worktrees",
+      "Test experimental code without breaking main branch",
+      "Run 2 coding agents in parallel on different features"
+    ],
+    "phases": [
+      "1. Create worktree for the feature/fix",
+      "2. Do all work in the worktree",
+      "3. Test in the worktree",
+      "4. Merge or cherry-pick back to main"
+    ],
+    "related": [
+      "code-savant (use in worktree for non-trivial code work)",
+      "team (use worktree per worker in multi-agent plans)"
+    ],
+    "prerequisites": [
+      "Working git repo",
+      "Clean main branch (or branch you're working from)"
+    ],
+    "deliverable": "Isolated git worktree at a separate path, fully functional, easy to merge or discard"
+  },
+  "jarvis-rag": {
+    "when_to_use": [
+      "Francis asks about his own systems (Mavis, Hermes, MaxClaw, Claude, Tailscale, Supabase, crons, monitors)",
+      "References past decisions, configs, or notes",
+      "Questions about his stack architecture or runtime behavior"
+    ],
+    "when_not_to_use": [
+      "Current events or web research (use deep-research or web_search)",
+      "Code that needs the knowledge as context (call mavis-rag directly)"
+    ],
+    "use_cases": [
+      "How does the OAuth pool unlock work?",
+      "What's the current state of fv-legion-2?",
+      "What crons are configured?"
+    ],
+    "phases": [
+      "1. Embed query via OpenRouter text-embedding-3-small",
+      "2. Cosine similarity vs cached mavis_knowledge",
+      "3. Top-K chunks above threshold (default 5, 0.25)",
+      "4. Inject as context to Claude (Haiku 4.5 default)",
+      "5. Context-grounded answer"
+    ],
+    "related": [
+      "web_search (for live/current info)",
+      "memory_search (for in-session memory, not knowledge base)"
+    ],
+    "prerequisites": [
+      "mavis_knowledge table populated (daily cron refreshes)"
+    ],
+    "deliverable": "Context-grounded answer with source citations"
+  },
+  "supabase-reconfigure": {
+    "when_to_use": "Reconfigure Supabase across multi-repo codebases. Detect URLs, align hardcoded fallbacks, expand schema, audit, draft PRs.",
+    "triggers": [
+      "reconfigure supabase",
+      "fix supabase url",
+      "consolidate supabase",
+      "migrate supabase data",
+      "update supabase schema",
+      "supabase project paused"
+    ],
+    "use_cases": [
+      "Fix a stale SUPABASE_URL",
+      "Consolidate multiple projects",
+      "Migrate data",
+      "Add RLS to existing tables",
+      "Setup self-trigger for unpaused project"
+    ],
+    "deliverable": "Idempotent SQL migration + RLS + bridge code patches + draft PRs",
+    "phases": [
+      "Detect",
+      "Plan",
+      "Migrate",
+      "Audit",
+      "PR"
+    ]
+  },
+  "supabase-audit": {
+    "when_to_use": [
+      "Audit a single Supabase project for security/RLS/performance",
+      "Before going to production with a new schema",
+      "When you suspect missing RLS or blanket policies"
+    ],
+    "when_not_to_use": [
+      "Multi-project reconfiguration (use supabase-reconfigure)",
+      "Code change in queries (use gstack-openclaw-investigate)"
+    ],
+    "use_cases": [
+      "Audit francis-production-core before going live",
+      "Check for missing RLS policies on all public tables",
+      "Verify all FK columns have indexes"
+    ],
+    "phases": [
+      "1. Resolve project + auth from env",
+      "2. Query pg_tables for RLS status",
+      "3. Query pg_policies for each table",
+      "4. Check FK indexes",
+      "5. Check for blanket policies (qual=true)",
+      "6. Check storage buckets + edge function logs",
+      "7. Output findings as <supabase-audit> block with severity + fix"
+    ],
+    "related": [
+      "supabase-reconfigure (multi-project)",
+      "fullstack-dev (when code+schema both change)"
+    ],
+    "prerequisites": [
+      "Project live (DNS resolves)",
+      "Service role key in env"
+    ],
+    "deliverable": "Supabase audit report with critical/high/medium/low findings + concrete fixes"
+  },
+  "app-builder": {
+    "when_to_use": "Build new web apps, APIs, mobile apps from natural language. Full-stack app builder.",
+    "triggers": [
+      "build app",
+      "scaffold",
+      "create new app",
+      "full-stack",
+      "MVP"
+    ],
+    "use_cases": [
+      "Build a SaaS MVP",
+      "Scaffold a new REST API",
+      "Create a mobile app",
+      "Generate a CRUD app from spec"
+    ],
+    "deliverable": "Working app with frontend + backend + database, with documentation and deploy instructions",
+    "phases": [
+      "Plan",
+      "Scaffold",
+      "Implement",
+      "Test",
+      "Deploy"
+    ]
+  },
+  "mini-coder-max": {
+    "when_to_use": "Autonomous coding for any complexity. Plans, implements, reviews, delivers high-quality code with structured workflow.",
+    "triggers": [
+      "autonomous coding",
+      "code workflow",
+      "implement feature",
+      "deliver code"
+    ],
+    "use_cases": [
+      "Implement a new feature end-to-end",
+      "Refactor with verification",
+      "Build a complex module"
+    ],
+    "deliverable": "Working code with tests, documentation, summary of what was built",
+    "phases": [
+      "Planning",
+      "Implementation",
+      "QA",
+      "Delivery"
+    ]
+  },
+  "ai-agents-architect": {
+    "when_to_use": "Design autonomous AI agents. Architecture, tool integration, memory systems, planning, multi-agent orchestration.",
+    "triggers": [
+      "agent design",
+      "agent architecture",
+      "multi-agent",
+      "tool use",
+      "function calling"
+    ],
+    "use_cases": [
+      "Design an AI agent for X",
+      "Architecture for agent memory",
+      "Tool use patterns",
+      "Multi-agent coordination"
+    ],
+    "deliverable": "Agent architecture diagram + implementation guidance + tradeoffs",
+    "phases": [
+      "Design",
+      "Tool choice",
+      "Memory design",
+      "Planning strategy",
+      "Orchestration"
+    ]
+  },
+  "mavis-platform": {
+    "when_to_use": "Mavis MiniMax-M3 platform integration for claw-anyllm. OpenAI-compatible API, reasoning tags, agent teams.",
+    "triggers": [
+      "MiniMax-M3",
+      "MiniMax platform",
+      "claw-anyllm",
+      "Mavis platform"
+    ],
+    "use_cases": [
+      "Build on top of Mavis M3",
+      "Use claw-anyllm endpoints",
+      "Wire reasoning tags"
+    ],
+    "deliverable": "Integration code + endpoint list + config",
+    "phases": [
+      "Setup",
+      "Integration",
+      "Testing"
+    ]
+  },
+  "clickhouse-best-practices": {
+    "when_to_use": "MUST USE for ClickHouse schemas, queries, configs. 28 rules checked before recommendations.",
+    "triggers": [
+      "ClickHouse",
+      "OLAP",
+      "columnar DB",
+      "CREATE TABLE",
+      "slow query"
+    ],
+    "use_cases": [
+      "Review ClickHouse schema",
+      "Optimize slow query",
+      "Choose table engine",
+      "Partition strategy"
+    ],
+    "deliverable": "Schema/query review with 28-rule checklist + fix list",
+    "phases": [
+      "Schema review",
+      "Query analysis",
+      "Optimization",
+      "Validation"
+    ]
+  },
+  "web-automation-agent": {
+    "when_to_use": "Web automation and data extraction. Uses TinyFish web agents + AgentQL. Multi-step flows, stealth, structured JSON.",
+    "triggers": [
+      "scrape",
+      "web automation",
+      "extract data",
+      "compare prices",
+      "monitor competitors"
+    ],
+    "use_cases": [
+      "Scrape a website",
+      "Extract product data",
+      "Monitor price changes",
+      "Multi-step web flow"
+    ],
+    "deliverable": "Structured JSON data + extraction log + schema",
+    "phases": [
+      "Plan",
+      "Navigate",
+      "Extract",
+      "Validate"
+    ]
+  },
+  "frontend-design": {
+    "when_to_use": "Production-grade frontend interfaces with high design quality. Creative, polished, non-generic.",
+    "triggers": [
+      "build UI",
+      "design page",
+      "website",
+      "landing page",
+      "React component"
+    ],
+    "use_cases": [
+      "Build a SaaS landing page",
+      "Create a dashboard",
+      "Design a settings page",
+      "Build a portfolio"
+    ],
+    "deliverable": "Production-ready code with design rationale, no generic AI aesthetics",
+    "phases": [
+      "Concept",
+      "Wireframe",
+      "Implement",
+      "Polish"
+    ]
+  },
+  "fullstack-dev": {
+    "when_to_use": "Full-stack backend architecture + frontend-backend integration. Express, Next.js, Python, Go, etc.",
+    "triggers": [
+      "full-stack",
+      "REST API + React",
+      "backend service",
+      "API client",
+      "real-time"
+    ],
+    "use_cases": [
+      "Scaffold full-stack app",
+      "Design service layer",
+      "Implement auth flow",
+      "Add WebSocket"
+    ],
+    "deliverable": "Service layer + API client + error handling + auth flow + tests",
+    "phases": [
+      "Design",
+      "Backend",
+      "Frontend",
+      "Integration",
+      "Production hardening"
+    ]
+  },
+  "github-integration": {
+    "when_to_use": "GitHub repo management, PRs, issues, code review operations via gh CLI or REST.",
+    "triggers": [
+      "github",
+      "pull request",
+      "create issue",
+      "code review",
+      "gh CLI"
+    ],
+    "use_cases": [
+      "Create a PR",
+      "List open issues",
+      "Review code on PR",
+      "Manage repo"
+    ],
+    "deliverable": "GitHub URL + PR/issue ID + status",
+    "phases": [
+      "Auth",
+      "Action",
+      "Verify"
+    ]
+  },
+  "supabase-backend": {
+    "when_to_use": "Build backend services with Supabase: PostgreSQL, auth, realtime subscriptions, storage.",
+    "triggers": [
+      "supabase",
+      "postgres backend",
+      "realtime",
+      "auth setup",
+      "storage"
+    ],
+    "use_cases": [
+      "Create Supabase tables",
+      "Set up auth",
+      "Add realtime subscription",
+      "Configure storage"
+    ],
+    "deliverable": "SQL migration + RLS policies + client code + sample queries",
+    "phases": [
+      "Schema",
+      "Auth",
+      "Realtime",
+      "Storage",
+      "Test"
+    ]
+  },
+  "dr-closeout-advisor": {
+    "when_to_use": "DR \u00c9lectrique closeout dossier review. Project folder CYY-NNN. CARDEX, lettres, plans Tel Que Construit, QMD.",
+    "triggers": [
+      "DR closeout",
+      "dossier de fin",
+      "CYY-NNN",
+      "lettre de conformit\u00e9",
+      "lettre de garantie",
+      "QMD"
+    ],
+    "use_cases": [
+      "Audit a closeout PDF",
+      "Verify all sections present",
+      "Identify missing documents",
+      "Estimate days to close"
+    ],
+    "deliverable": "Status board (READY/GAPS/BLOCKING) + checklist + gap list + ETA",
+    "phases": [
+      "Read dossier",
+      "Check sections",
+      "Audit signatures",
+      "List gaps",
+      "Estimate ETA"
+    ]
+  },
+  "seo-geo-optimization-expert": {
+    "when_to_use": "SEO + GEO (Generative Engine Optimization). EEAT audit, AI citation, keyword research, schema markup.",
+    "triggers": [
+      "SEO",
+      "GEO",
+      "EEAT",
+      "rank",
+      "keyword research",
+      "AI citation"
+    ],
+    "use_cases": [
+      "Audit content for EEAT",
+      "Find keywords",
+      "Optimize for ChatGPT citation",
+      "Add schema markup"
+    ],
+    "deliverable": "EEAT score + keyword list + schema markup + content refresh plan",
+    "phases": [
+      "Audit",
+      "Research",
+      "Optimize",
+      "Track"
+    ]
+  },
+  "workflow-automation-designer": {
+    "when_to_use": "Create efficient, maintainable, scalable automation workflows. For repetitive tasks.",
+    "triggers": [
+      "automate",
+      "workflow",
+      "automation pipeline",
+      "n8n",
+      "Zapier"
+    ],
+    "use_cases": [
+      "Design an ETL pipeline",
+      "Build a notification workflow",
+      "Automate report generation",
+      "Chain tools together"
+    ],
+    "deliverable": "Workflow definition + nodes + error handling + monitoring",
+    "phases": [
+      "Map process",
+      "Design workflow",
+      "Implement",
+      "Test",
+      "Monitor"
+    ]
+  },
+  "self-improving-agent": {
+    "when_to_use": "Capture learnings, errors, corrections for continuous improvement. When commands fail, APIs break, knowledge is outdated.",
+    "triggers": [
+      "command failed",
+      "user correction",
+      "API error",
+      "missing feature",
+      "outdated knowledge"
+    ],
+    "use_cases": [
+      "Log an error pattern",
+      "Update memory with new learning",
+      "Suggest improvement to a workflow"
+    ],
+    "deliverable": "Memory entry with category (gotcha/correction/learning) + evidence",
+    "phases": [
+      "Detect",
+      "Capture",
+      "Categorize",
+      "Persist"
+    ]
+  },
+  "agentic-eval": {
+    "when_to_use": "Iterative evaluation and refinement of agent outputs. Rubric-based, evaluator-optimizer patterns.",
+    "triggers": [
+      "improve agent output",
+      "evaluator",
+      "rubric",
+      "iterative refinement",
+      "test-driven agent"
+    ],
+    "use_cases": [
+      "Score LLM responses",
+      "Build an evaluator-optimizer loop",
+      "Add a quality rubric",
+      "Tune prompt for quality"
+    ],
+    "deliverable": "Evaluation rubric + score + improved prompt + evidence",
+    "phases": [
+      "Define rubric",
+      "Score",
+      "Identify gaps",
+      "Refine",
+      "Re-evaluate"
+    ]
+  }
+}
