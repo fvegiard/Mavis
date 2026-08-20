@@ -1,0 +1,3713 @@
+[
+  {
+    "kind": "folder",
+    "category": null,
+    "name": "Mavis",
+    "title": "Mavis — self-knowledge base",
+    "description": "The root of the Mavis self-knowledge tree. Contains everything Mavis is, has, can do, and knows. Created 2026-08-20 in francis-production-core / tuwshovazpqzsvwnicgj / schema mavis / table items.",
+    "triggers": [],
+    "payload": {
+      "created": "2026-08-20",
+      "project": "francis-production-core",
+      "ref": "tuwshovazpqzsvwnicgj",
+      "schema": "mavis",
+      "table": "items"
+    },
+    "source": "self_inventory",
+    "status": "active",
+    "parent": null
+  },
+  {
+    "kind": "folder",
+    "category": null,
+    "name": "structure",
+    "title": "Structure — what Mavis is",
+    "description": "The root manifest. Agent identity, version, directives, hard rules, routing, stack, supabase config.",
+    "triggers": [],
+    "payload": {},
+    "source": "self_inventory",
+    "status": "active",
+    "parent": "Mavis"
+  },
+  {
+    "kind": "file",
+    "category": "structure",
+    "name": "agent_identity",
+    "title": "Agent Identity",
+    "description": "Mavis — MiniMax-M3. Root session 433004077547721. v10.1. Default model claude-haiku-4-5.",
+    "triggers": [],
+    "payload": {
+      "agent": "Mavis",
+      "version": "v10.1 M3-native",
+      "session_id": "433004077547721",
+      "session_role": "root",
+      "platform": "M3 (Mavis M3)",
+      "default_model": "claude-haiku-4-5",
+      "workspace": "/workspace",
+      "user": "Francis",
+      "language": "French-first, action-first",
+      "tone": "professional, direct, warm, no fluff",
+      "core_directives": [
+        "When goal is clear, push it forward — don't keep checking in",
+        "On ambiguity, only ask the questions that actually change the outcome",
+        "Lead with the conclusion, then back it up",
+        "For complex tasks, decompose clearly first",
+        "You have your own judgment. When asked to choose, give your recommendation and why",
+        "If direction is wrong, say it once directly. If user holds, follow them",
+        "Don't be mechanical or performative — own it, adjust, don't explain"
+      ],
+      "hard_rules": [
+        "Never pretend to have tools you don't have",
+        "Never deliver code without executing it",
+        "Never claim 'done' without visible output",
+        "Never trust memory over real env/ls discovery",
+        "Never overwrite a file without read() or ls() first",
+        "Always use bun/bunx when available (Francis directive 2026-08-20)",
+        "Always check CLIs for API keys you have (Francis correction 2026-08-20)",
+        "Always use pre-flight protocol at start of new conversation",
+        "Always verify before claiming work complete (superpowers:verification-before-completion)"
+      ],
+      "routing_rules": [
+        "Default = handle it yourself",
+        "Spawn team plan when: multi-format, real depth, high-stakes, user asks",
+        "Spawn single verifier when: review/test/audit existing deliverable only",
+        "Spawn sub-agent (task tool) for: explore, general, scout",
+        "Reach for the team skill only when you want best practices for plan writing"
+      ],
+      "stacks": {
+        "default_runtime": "bun 1.4.0",
+        "default_python": "3.11.2",
+        "default_model": "claude-haiku-4-5",
+        "primary_db": "PostgreSQL 17.6 (Supabase)",
+        "primary_orc": "Mavis M3 (Mavis platform)",
+        "primary_vcs": "git + gh CLI (when available)",
+        "primary_browser_automation": "playwright 1.62.1",
+        "primary_edge": "Cloudflare Workers/Pages/R2/D1/KV"
+      },
+      "supabase_main_project": {
+        "name": "francis-production-core",
+        "ref": "tuwshovazpqzsvwnicgj",
+        "region": "ca-central-1",
+        "status": "ACTIVE_HEALTHY",
+        "postgres_version": "17.6.1.155",
+        "schema_mavis": "mavis.items (this knowledge base)",
+        "stale_env_refs": [
+          "beagwczwcraeefxkkcmq",
+          "hzdzeleznvxzncgzqiub"
+        ]
+      },
+      "self_kb_location": "mavis.items in tuwshovazpqzsvwnicgj project, mavis schema"
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/structure"
+  },
+  {
+    "kind": "folder",
+    "category": null,
+    "name": "skills",
+    "title": "Skills — all 80+ hosted skills",
+    "description": "Every skill in the <available_skills> system block. Name, description, trigger keywords. For semantic search 'what skill do I use for X'.",
+    "triggers": [],
+    "payload": {},
+    "source": "self_inventory",
+    "status": "active",
+    "parent": "Mavis"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "3d-web-dev-specialist",
+    "title": "3d-web-dev-specialist",
+    "description": "Expert 3D WebGL developer for high-end animated websites. Three.js, GSAP ScrollTrigger, shader programming.",
+    "triggers": [
+      "3d website",
+      "webgl",
+      "three.js",
+      "scroll animation",
+      "3d portfolio",
+      "shaders"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "advanced-prompting-frameworks",
+    "title": "advanced-prompting-frameworks",
+    "description": "Expert-level prompting frameworks. Multi-stage pipelines, self-correcting systems, meta-prompting.",
+    "triggers": [
+      "advanced prompting",
+      "prompt engineering",
+      "agentic prompting",
+      "chain-of-thought",
+      "ReAct",
+      "Reflexion"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "agentic-eval",
+    "title": "agentic-eval",
+    "description": "Iterative evaluation and refinement of agent outputs. Evaluator-optimizer pipelines, rubric-based scoring.",
+    "triggers": [
+      "improve ai responses",
+      "evaluator-optimizer",
+      "test-driven refinement",
+      "rubric-based evaluation",
+      "measure agent output"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "ai-agents-architect",
+    "title": "ai-agents-architect",
+    "description": "Expert in designing autonomous AI agents. Architecture, tool integration, memory, multi-agent orchestration.",
+    "triggers": [
+      "build ai agent",
+      "design autonomous system",
+      "tool use",
+      "function calling",
+      "agent workflow"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "ai-research-assistant",
+    "title": "ai-research-assistant",
+    "description": "Rigorous scholarly analysis for AI/ML/CV/NLP papers. Methodology, contributions, comparison.",
+    "triggers": [
+      "analyze academic paper",
+      "review ai/ml research",
+      "evaluate methodology",
+      "synthesize research directions"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "ai-social-media-content",
+    "title": "ai-social-media-content",
+    "description": "Generate images, videos, captions, thumbnails for TikTok/Instagram/YouTube/Twitter.",
+    "triggers": [
+      "social media content",
+      "instagram",
+      "tiktok",
+      "youtube thumbnail",
+      "twitter image"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "ai-video-creator",
+    "title": "ai-video-creator",
+    "description": "Generate AI videos from text/image with motion and animation.",
+    "triggers": [
+      "create video",
+      "ai video",
+      "animate image",
+      "video content"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "api-gateway",
+    "title": "api-gateway",
+    "description": "Connect to 100+ APIs via Maton OAuth. Google/Microsoft/GitHub/Notion/Slack/Airtable/HubSpot. User must authorize each.",
+    "triggers": [
+      "google workspace",
+      "microsoft 365",
+      "github api",
+      "notion",
+      "slack api",
+      "airtable"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "app-builder",
+    "title": "app-builder",
+    "description": "Full-stack app builder. Web apps, APIs, mobile apps from natural language.",
+    "triggers": [
+      "build app",
+      "new application",
+      "scaffold project",
+      "plan implementation"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "autoselect-skill",
+    "title": "autoselect-skill",
+    "description": "Auto-select which skills to load. Ranked recommendations with opt-in /autoselect trigger.",
+    "triggers": [
+      "which skill to use",
+      "auto-select skill",
+      "skill recommendation"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "browser-automation-testing",
+    "title": "browser-automation-testing",
+    "description": "Browser automation with Playwright. Form submission, E2E tests, UI automation.",
+    "triggers": [
+      "automate browser",
+      "e2e testing",
+      "form submission",
+      "ui automation",
+      "playwright"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "ceo-assistant",
+    "title": "ceo-assistant",
+    "description": "End-to-end planning, execution, completion. Goal clarification, strategic planning, milestones.",
+    "triggers": [
+      "plan",
+      "execute",
+      "review",
+      "strategy",
+      "milestone",
+      "decision",
+      "prioritize",
+      "roadmap"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "claude-code-command-creator",
+    "title": "claude-code-command-creator",
+    "description": "Create Claude Code slash commands and custom command extensions.",
+    "triggers": [
+      "create slash command",
+      "claude code command",
+      "custom command"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "clickhouse-best-practices",
+    "title": "clickhouse-best-practices",
+    "description": "ClickHouse expert. 28 rules MUST check. Schema design, JOINs, partitioning, ReplacingMergeTree, insert perf.",
+    "triggers": [
+      "clickhouse",
+      "create table",
+      "alter table",
+      "order by",
+      "primary key",
+      "slow query",
+      "join optimization"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "code-savant",
+    "title": "code-savant",
+    "description": "Autonomous coding agent. Plans → implements → reviews → delivers. Any complexity.",
+    "triggers": [
+      "code",
+      "build",
+      "implement",
+      "develop",
+      "fix",
+      "refactor",
+      "architect",
+      "debug",
+      "optimize"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "deep-research",
+    "title": "deep-research",
+    "description": "5-step deep research. Confirm facts → understand question → deep analysis → search/verify → final report.",
+    "triggers": [
+      "deep research",
+      "market analysis",
+      "competitor research",
+      "trend judgment",
+      "fact verification"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "deep-research-10x",
+    "title": "deep-research-10x",
+    "description": "10x deeper research with multi-layer verification, intelligence scoring, iterative refinement.",
+    "triggers": [
+      "research thoroughly",
+      "comprehensive research",
+      "competitive intelligence",
+      "due diligence"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "deep-research-agent",
+    "title": "deep-research-agent",
+    "description": "Comprehensive research agent. 100+ source verification, market/competitive/tech analysis.",
+    "triggers": [
+      "research",
+      "comprehensive analysis",
+      "market research",
+      "academic survey"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "desktop-commander-overview",
+    "title": "desktop-commander-overview",
+    "description": "Desktop Commander MCP overview. Persistent shells, long-running processes, surgical edits, SSH, ripgrep. **Note**: skill loaded as knowledge, but actual MCP tools NOT wired in this sandbox.",
+    "triggers": [
+      "persistent shell",
+      "long-running process",
+      "edit block",
+      "ssh session",
+      "ripgrep search"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "docx",
+    "title": "docx",
+    "description": "Unified DOCX skill — create, template-apply, edit/fill, read, repair, compare Word docs.",
+    "triggers": [
+      "word document",
+      "docx",
+      "template",
+      "dossier",
+      "rapport word"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "dr-closeout-advisor",
+    "title": "dr-closeout-advisor",
+    "description": "DR Électrique closeout dossier advisor. Triggers on CYY-NNN folder, conformity letter, warranty letter, QMD deliverables.",
+    "triggers": [
+      "dossier fin de projet",
+      "cardex",
+      "lettre de conformité",
+      "lettre de garantie",
+      "dossier-map",
+      "dr closeout",
+      "qmd"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "excel:xlsx",
+    "title": "excel:xlsx",
+    "description": "Spreadsheet skill. Read/edit/create .xlsx/.xlsm/.csv/.tsv. Editing, formulas, charts, cleaning.",
+    "triggers": [
+      "spreadsheet",
+      "xlsx",
+      "csv",
+      "tsv",
+      "edit columns",
+      "pivot table"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "frontend-design",
+    "title": "frontend-design",
+    "description": "Distinctive production-grade frontend interfaces. High design quality, avoids generic AI aesthetics.",
+    "triggers": [
+      "website",
+      "landing page",
+      "dashboard",
+      "react component",
+      "html/css",
+      "ui design"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "fullstack-dev",
+    "title": "fullstack-dev",
+    "description": "Full-stack architecture + frontend-backend integration. Service layers, error handling, auth, file uploads, real-time.",
+    "triggers": [
+      "full-stack app",
+      "rest api",
+      "scaffold backend",
+      "todo app",
+      "crud",
+      "real-time",
+      "chat",
+      "express react",
+      "next.js api",
+      "node.js backend",
+      "python backend",
+      "go backend"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "github",
+    "title": "github",
+    "description": "GitHub via `gh` CLI. Issues, PRs, CI runs, advanced queries.",
+    "triggers": [
+      "github",
+      "gh cli",
+      "pr",
+      "issue",
+      "ci run",
+      "github api"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "github-integration",
+    "title": "github-integration",
+    "description": "GitHub Integration. Repo management, PRs, Issues, code review operations.",
+    "triggers": [
+      "github integration",
+      "repository management",
+      "pull requests",
+      "issues",
+      "code review"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "gog",
+    "title": "gog",
+    "description": "Google Workspace CLI for Gmail, Calendar, Drive, Contacts, Sheets, Docs.",
+    "triggers": [
+      "gmail",
+      "google calendar",
+      "google drive",
+      "google contacts",
+      "google sheets",
+      "google docs"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "gstack-openclaw-ceo-review",
+    "title": "gstack-openclaw-ceo-review",
+    "description": "Strategic challenge with 10-section review. 4 scope modes (Expansion, Selective Expansion, Hold Scope, Reduction).",
+    "triggers": [
+      "review plan",
+      "challenge proposal",
+      "ceo review",
+      "think bigger",
+      "scope decision"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "gstack-openclaw-investigate",
+    "title": "gstack-openclaw-investigate",
+    "description": "Root cause debugging. 4-phase process (investigate/analyze/test/verify).",
+    "triggers": [
+      "debug",
+      "fix bug",
+      "investigate error",
+      "root cause analysis",
+      "stopped working"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "gstack-openclaw-office-hours",
+    "title": "gstack-openclaw-office-hours",
+    "description": "YC Office Hours. 6 forcing questions to interrogate product idea before code.",
+    "triggers": [
+      "brainstorm",
+      "evaluate idea",
+      "office hours",
+      "think through new product"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "gstack-openclaw-retro",
+    "title": "gstack-openclaw-retro",
+    "description": "Weekly engineering retro. Commit history, work patterns, code quality metrics, trends.",
+    "triggers": [
+      "weekly retro",
+      "what shipped",
+      "engineering retrospective"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "html-presentation-generator",
+    "title": "html-presentation-generator",
+    "description": "Multi-page HTML presentations exportable to PDF/PPTX. Cover, TOC, content, summary slides.",
+    "triggers": [
+      "ppt",
+      "presentation",
+      "slides",
+      "html ppt",
+      "slide deck"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "insane-promax-cybertoolsmith",
+    "title": "insane-promax-cybertoolsmith",
+    "description": "Ultra-advanced cybersecurity tool generator. CLI/GUI hacking, pen testing, C2 frameworks, 20+ trigger variants.",
+    "triggers": [
+      "cybersecurity tool",
+      "pentesting",
+      "bug bounty",
+      "red team",
+      "blue team",
+      "wireless hacking"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "interactive-visualization-architect",
+    "title": "interactive-visualization-architect",
+    "description": "Stunning interactive web animations for science principles, mechanical structures, math concepts.",
+    "triggers": [
+      "visualize",
+      "animate",
+      "demonstrate",
+      "interactive demo",
+      "principle"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "jarvis-rag",
+    "title": "jarvis-rag",
+    "description": "Query user's Supabase knowledge base (66+ vectors) using semantic search + Claude answer. Auto-invocable.",
+    "triggers": [
+      "rag",
+      "knowledge base",
+      "semantic search",
+      "supabase",
+      "mavis_knowledge"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "jarvis-rag-debug",
+    "title": "jarvis-rag-debug",
+    "description": "Diagnose why mavis-rag returns bad/empty results. Auto-invocable when RAG misbehaves.",
+    "triggers": [
+      "rag broken",
+      "wrong answer",
+      "retrieval off",
+      "debug rag"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "knowledge-digest",
+    "title": "knowledge-digest",
+    "description": "Convert textbooks/PDFs into personalized learning materials. Notes, quizzes, slides, audio courses, mind maps.",
+    "triggers": [
+      "convert textbook",
+      "study notes",
+      "quiz generation",
+      "slides from pdf",
+      "mind map",
+      "audio course"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "lark-tools",
+    "title": "lark-tools",
+    "description": "Feishu/Lark full capability via lark-cli. Mention Feishu or Lark to trigger.",
+    "triggers": [
+      "feishu",
+      "lark",
+      "lark-cli",
+      "飞书"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "market-research",
+    "title": "market-research",
+    "description": "Market research with sizing, segmentation, competitor mapping, pricing checks, demand validation.",
+    "triggers": [
+      "tam",
+      "sam",
+      "som",
+      "market sizing",
+      "competitor pricing",
+      "go-to-market"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "mcode-tools-master",
+    "title": "mcode-tools-master",
+    "description": "Required before running mcode-tools. Discover/inspect/call connectors, multimodal gen (image/video/audio/docs).",
+    "triggers": [
+      "mcode-tools",
+      "image generation",
+      "video generation",
+      "audio generation",
+      "multimodal"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "mini-coder-max",
+    "title": "mini-coder-max",
+    "description": "Autonomous coding agent. Plans → implements → QA → delivers. Any complexity.",
+    "triggers": [
+      "code",
+      "build",
+      "implement",
+      "create",
+      "develop",
+      "fix",
+      "refactor",
+      "architect"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "minimax-ai-agent-builder",
+    "title": "minimax-ai-agent-builder",
+    "description": "Comprehensive guide to building first AI agent using MiniMax. From setup to deployment.",
+    "triggers": [
+      "build ai agent",
+      "create minimax agent",
+      "ai agent tutorial",
+      "minimax development"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "minimax-coder-agents",
+    "title": "minimax-coder-agents",
+    "description": "Multi-agent orchestrator. Specialized sub-agents (frontend/backend/review/debug/document/test) work in parallel.",
+    "triggers": [
+      "build me an app",
+      "full-stack project",
+      "parallel coding",
+      "multi-agent development"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "minimax-docx",
+    "title": "minimax-docx",
+    "description": "Professional DOCX via OpenXML SDK. Create from scratch, fill/edit, apply template with XSD validation.",
+    "triggers": [
+      "report",
+      "proposal",
+      "contract",
+      "form",
+      "reformat to template",
+      "docx"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "minimax-graphic-designer",
+    "title": "minimax-graphic-designer",
+    "description": "Performance Ad Image Generator for Instagram 3:4 Lead Gen. High-converting ad visuals.",
+    "triggers": [
+      "ad image",
+      "instagram ad",
+      "facebook ad",
+      "lead gen visual",
+      "conversion-focused"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "minimax-pdf",
+    "title": "minimax-pdf",
+    "description": "Visual-quality PDF. Token-based design system (color/typography/spacing). Create, fill, reformat, read PDFs.",
+    "triggers": [
+      "make a pdf",
+      "generate report",
+      "create resume",
+      "polished pdf",
+      "client-ready document"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "minimax-xlsx",
+    "title": "minimax-xlsx",
+    "description": "Excel/xlsx/csv/tsv. Create, read, analyze, edit, validate. Financial formatting standards.",
+    "triggers": [
+      "spreadsheet",
+      "excel",
+      ".xlsx",
+      "csv",
+      "pivot table",
+      "financial model",
+      "formula"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "n8n",
+    "title": "n8n",
+    "description": "Manage n8n workflows/automations via API. List, activate, check status, trigger, debug.",
+    "triggers": [
+      "n8n",
+      "workflow",
+      "automation",
+      "execution"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "notion:notion-knowledge-capture",
+    "title": "notion:notion-knowledge-capture",
+    "description": "Capture conversations/decisions into structured Notion pages. Wiki entries, how-tos, decisions, FAQs.",
+    "triggers": [
+      "notion wiki",
+      "capture conversation",
+      "decision page",
+      "faq in notion"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "notion:notion-meeting-intelligence",
+    "title": "notion:notion-meeting-intelligence",
+    "description": "Prepare meeting materials with Notion context + research. Agendas, pre-reads, attendee-tailored.",
+    "triggers": [
+      "meeting materials",
+      "agenda",
+      "pre-read",
+      "notion meeting"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "notion:notion-research-documentation",
+    "title": "notion:notion-research-documentation",
+    "description": "Research across Notion → structured docs. Briefs, comparisons, reports with citations.",
+    "triggers": [
+      "notion research",
+      "synthesize docs",
+      "notion brief",
+      "comparison"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "notion:notion-spec-to-implementation",
+    "title": "notion:notion-spec-to-implementation",
+    "description": "Turn Notion specs into implementation plans + tasks. PRDs/feature specs → Notion plans.",
+    "triggers": [
+      "notion spec",
+      "implementation plan",
+      "feature spec",
+      "notion plan"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "openclaw-assistant",
+    "title": "openclaw-assistant",
+    "description": "OpenClaw (clawd.bot) expert. VPS install, channel config (WhatsApp/Telegram/Discord/Slack/Signal/Matrix), gateway, model auth.",
+    "triggers": [
+      "openclaw",
+      "clawd.bot",
+      "vps install",
+      "whatsapp gateway",
+      "telegram gateway"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "opencli-universal-cli-hub",
+    "title": "opencli-universal-cli-hub",
+    "description": "Ultimate CLI Powerhouse. 87+ adapters (Twitter/Bilibili/Reddit/Amazon/Xiaohongshu/Zhihu). Zero LLM cost.",
+    "triggers": [
+      "twitter cli",
+      "bilibili cli",
+      "reddit",
+      "amazon",
+      "xiaohongshu",
+      "browser automation cli"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "pdf",
+    "title": "pdf",
+    "description": "Unified PDF skill. Generate, reformat, fill, read. LaTeX thesis, Markdown→PDF, form filling, extraction/OCR.",
+    "triggers": [
+      "pdf",
+      "markdown to pdf",
+      "pdf form",
+      "extract pdf",
+      "ocr"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "pdf:pdf",
+    "title": "pdf:pdf",
+    "description": "Same as pdf skill — duplicate name (alternate scope).",
+    "triggers": [
+      "pdf",
+      "thesis",
+      "pdf generate",
+      "pdf reformat",
+      "pdf fill",
+      "ocr pdf"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "plan-mode",
+    "title": "plan-mode",
+    "description": "Plan before execution. Load when task has ambiguity, multiple valid approaches, user wants discussion first.",
+    "triggers": [
+      "plan first",
+      "discuss first",
+      "ambiguous task",
+      "multiple approaches"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "powerpoint-pptx",
+    "title": "powerpoint-pptx",
+    "description": "Create/inspect/edit PowerPoint with reliable layouts, templates, placeholders, notes, charts, visual QA.",
+    "triggers": [
+      "powerpoint",
+      ".pptx",
+      "pptx deck",
+      "slide template",
+      "charts in pptx"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "ppt:pptx",
+    "title": "ppt:pptx",
+    "description": "Read/create/edit PowerPoint PPTX. Parse, extract, theme inspect, create via PptxGenJS, preserve formatting.",
+    "triggers": [
+      "read pptx",
+      "create pptx",
+      "edit pptx",
+      "extract pptx",
+      "pptxgenjs"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "pptx",
+    "title": "pptx",
+    "description": "Read/create/edit PowerPoint PPTX/PPT. PptxGenJS for create, XML for edit, markitdown for extract.",
+    "triggers": [
+      "pptx",
+      "powerpoint",
+      "presentation deck",
+      "edit presentation"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "pptx-generator",
+    "title": "pptx-generator",
+    "description": "Generate/edit/read PowerPoint. PptxGenJS (cover/TOC/content/divider/summary), XML workflows, markitdown.",
+    "triggers": [
+      "ppt",
+      "pptx",
+      "powerpoint",
+      "presentation",
+      "slide",
+      "deck",
+      "slides"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "presentation-slides-creator",
+    "title": "presentation-slides-creator",
+    "description": "Stunning PowerPoint with slides/charts/animations. PPT/PPTX generation, business decks, pitch decks.",
+    "triggers": [
+      "create ppt",
+      "slide deck",
+      "business presentation",
+      "pitch deck"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "Python Code Writer",
+    "title": "Python Code Writer",
+    "description": "Professional Python code generator. Clean, efficient, well-commented, type hints, docstrings, error handling. PEP 8.",
+    "triggers": [
+      "python code",
+      "write python",
+      "python script",
+      "pep 8"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "sales-power-map",
+    "title": "sales-power-map",
+    "description": "B2B sales intelligence. Parse intent, discover companies, mine orgs, build Power Maps with contacts.",
+    "triggers": [
+      "sell",
+      "find customers",
+      "power map",
+      "decision makers",
+      "target company",
+      "b2b sales"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "self-improving-agent",
+    "title": "self-improving-agent",
+    "description": "Captures learnings/errors/corrections for continuous improvement. Use when commands fail, user corrects, etc.",
+    "triggers": [
+      "learn from error",
+      "self-improve",
+      "capture learning",
+      "command failed",
+      "missing feature"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "senior-software-engineer",
+    "title": "senior-software-engineer",
+    "description": "Engineering principles. Architecture guidance, code quality, best practices, decision frameworks.",
+    "triggers": [
+      "software architecture",
+      "code quality",
+      "best practices",
+      "engineering principles"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "seo-geo-optimization-expert",
+    "title": "seo-geo-optimization-expert",
+    "description": "SEO + GEO expert. Content audit, EEAT, AI optimization, keyword research, on-page, schema, backlinks.",
+    "triggers": [
+      "seo",
+      "geo",
+      "audit content",
+      "eeat",
+      "keyword research",
+      "ai optimization",
+      "cited by chatgpt"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "setup-dev-environment",
+    "title": "setup-dev-environment",
+    "description": "Scaffold Cursor cloud-agent dev env. Dockerfile, AGENTS.md, .cursor/environment.json, .env.example.",
+    "triggers": [
+      "set up dev env",
+      "cursor agent",
+      "cloud-agent ready",
+      "dockerfile",
+      "agents.md"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "skill-builder",
+    "title": "skill-builder",
+    "description": "Create comprehensive skill files for AI agents. Produces fully-structured SKILL.md with validation.",
+    "triggers": [
+      "create skill",
+      "build new skill",
+      "generate skill",
+      "make capability"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "skill-creator",
+    "title": "skill-creator",
+    "description": "Create a new Mavis skill. Writes to .skills/ for auto-sync.",
+    "triggers": [
+      "create a mavis skill",
+      "new skill",
+      "skill workflow",
+      "reusable procedure"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "slack",
+    "title": "slack",
+    "description": "Control Slack from Clawdbot. React, pin/unpin messages in channels/DMs.",
+    "triggers": [
+      "slack",
+      "react message",
+      "pin slack",
+      "unpin"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "supabase-audit",
+    "title": "supabase-audit",
+    "description": "Audit Supabase for anti-patterns. Missing RLS, anon-key in client, no FK indexes, secrets in bundles. Outputs fix SQL.",
+    "triggers": [
+      "check supabase",
+      "is supabase secure",
+      "audit supabase",
+      "fix rls"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "supabase-backend",
+    "title": "supabase-backend",
+    "description": "Build Supabase backends. PostgreSQL, auth, realtime, storage.",
+    "triggers": [
+      "set up supabase",
+      "create database tables",
+      "build auth systems"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "supabase-reconfigure",
+    "title": "supabase-reconfigure",
+    "description": "Reconfigure Supabase across repos. Detect URLs, identify hardcoded fallbacks, generate SQL with RLS, patch bridges, set up unpause detector cron.",
+    "triggers": [
+      "reconfigure supabase",
+      "fix supabase url",
+      "consolidate supabase",
+      "migrate supabase data",
+      "supabase paused",
+      "supabase project wrong"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "team",
+    "title": "team",
+    "description": "Run adversarial multi-agent team plans. Producer/verifier loop, explicit owner decision points.",
+    "triggers": [
+      "team plan",
+      "multi-agent",
+      "producer verifier",
+      "adversarial",
+      "parallel agents"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "ui-ux-pro-max",
+    "title": "ui-ux-pro-max",
+    "description": "UI/UX design intelligence. 50+ styles, 97 palettes, 57 font pairings, 99 UX guidelines, 25 chart types, 9 stacks.",
+    "triggers": [
+      "ui/ux",
+      "interface design",
+      "color palette",
+      "typography",
+      "landing page",
+      "dashboard",
+      "react",
+      "next.js",
+      "vue",
+      "svelte",
+      "swiftui",
+      "react native",
+      "flutter",
+      "tailwind",
+      "shadcn"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "visual-content-generator",
+    "title": "visual-content-generator",
+    "description": "Professional visual content. Presentations (PDF+PPTX), infographics, charts, dashboards, timelines, mind maps.",
+    "triggers": [
+      "slides",
+      "presentation",
+      "infographic",
+      "diagram",
+      "dashboard",
+      "timeline",
+      "mindmap",
+      "flowchart",
+      "visual content",
+      "deck"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "visual-page",
+    "title": "visual-page",
+    "description": "Self-contained visual HTML page with diagrams, charts, tables, timelines, interactive layouts.",
+    "triggers": [
+      "visual html",
+      "diagrams",
+      "charts",
+      "timelines",
+      "interactive layouts"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "web-automation-agent",
+    "title": "web-automation-agent",
+    "description": "Powerful web automation + data extraction with TinyFish + AgentQL. Natural language goals, multi-step flows, stealth mode.",
+    "triggers": [
+      "scrape website",
+      "extract data",
+      "automate web",
+      "compare prices",
+      "monitor competitor",
+      "tinyfish",
+      "agentql"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "web-design-reviewer",
+    "title": "web-design-reviewer",
+    "description": "Review/fix website design. Visual + source-level. Responsive, accessibility, visual consistency, design bugs.",
+    "triggers": [
+      "review website design",
+      "inspect ui/ux",
+      "check responsive",
+      "fix accessibility",
+      "design audit"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "web-scraper",
+    "title": "web-scraper",
+    "description": "Scrape/crawl/extract from websites.",
+    "triggers": [
+      "scrape",
+      "crawl",
+      "extract content",
+      "collect data from internet"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "workflow-automation-designer",
+    "title": "workflow-automation-designer",
+    "description": "Efficient maintainable scalable automations. Design/build/improve workflow systems.",
+    "triggers": [
+      "automate workflow",
+      "design workflow",
+      "create automation",
+      "build pipeline",
+      "improve automation"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "workflow-patterns",
+    "title": "workflow-patterns",
+    "description": "Conductor's TDD workflow. Phase checkpoints, git commits per task, verification protocol.",
+    "triggers": [
+      "tdd workflow",
+      "conductor",
+      "phase checkpoint",
+      "git commit task",
+      "verification protocol"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "worktree-management",
+    "title": "worktree-management",
+    "description": "Git worktree workflow for isolated dev. Load BEFORE any git code change.",
+    "triggers": [
+      "git worktree",
+      "isolated workspace",
+      "feature work isolation"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "file",
+    "category": "skill",
+    "name": "xlsx",
+    "title": "xlsx",
+    "description": "Spreadsheet skill. Read/edit/create/convert .xlsx/.xlsm/.csv/.tsv. Editing, formulas, charts, cleaning.",
+    "triggers": [
+      "spreadsheet",
+      "xlsx",
+      "xlsm",
+      "csv",
+      "edit columns",
+      "formulas",
+      "charts"
+    ],
+    "payload": {},
+    "source": "system_prompt:available_skills",
+    "status": "active",
+    "parent": "Mavis/skills"
+  },
+  {
+    "kind": "folder",
+    "category": null,
+    "name": "tools",
+    "title": "Tools — all 27 native functions",
+    "description": "Every native function Mavis can call. Name, type, category, capabilities.",
+    "triggers": [],
+    "payload": {},
+    "source": "self_inventory",
+    "status": "active",
+    "parent": "Mavis"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "bash",
+    "title": "Bash",
+    "description": "Execute shell command in cloud sandbox. Supports run_in_background for long tasks.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "shell",
+      "timeout_default_s": 30,
+      "background_capable": true
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "read",
+    "title": "Read File",
+    "description": "Read text/image/PDF/Notebook from workspace. Pages for PDFs >10 pages.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "fs_read",
+      "supports": [
+        "text",
+        "image",
+        "pdf",
+        "notebook"
+      ]
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "write",
+    "title": "Write File",
+    "description": "Create/overwrite file. Creates parent dirs. Prefers edit() for existing files.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "fs_write"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "edit",
+    "title": "Edit File",
+    "description": "Exact-string find-replace. Must read() first. Fails on ambiguous/empty match.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "fs_edit"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "glob",
+    "title": "Glob",
+    "description": "Find files by glob pattern. Workspace-scoped, gitignored files included.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "fs_search"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "grep",
+    "title": "Grep",
+    "description": "ripgrep-backed content search. output_mode=files_with_matches|content|count. Sensitive files excluded.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "fs_search"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "web_search",
+    "title": "Web Search",
+    "description": "Search the web (Brave-backed). For time-sensitive facts, news, prices, anything that may have changed.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "web",
+      "search_type": [
+        "search",
+        "videos",
+        "places",
+        "news",
+        "shopping"
+      ]
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "web_fetch",
+    "title": "Web Fetch",
+    "description": "Fetch URL content. deep mode for captcha/anti-bot pages. Pass prompt to extract.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "web",
+      "modes": [
+        "default",
+        "deep"
+      ]
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "mavis",
+    "title": "Mavis CLI",
+    "description": "Manage agents/cron/sessions/drive. mavis({command: 'agent list'}).",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "mgmt",
+      "groups": [
+        "agent",
+        "cron",
+        "session",
+        "drive"
+      ]
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "team",
+    "title": "Team Tool",
+    "description": "Run adversarial multi-agent team plans (producer vs verifier). Lifecycle: run/status/steer/decision/cancel.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "mgmt"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "communicate",
+    "title": "Communicate",
+    "description": "Send to peer session OR spawn new Branch session. report-back to parent on completion.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "mgmt",
+      "modes": [
+        "send",
+        "spawn"
+      ]
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "secret",
+    "title": "Secret Vault",
+    "description": "Create/list/update/delete encrypted secrets (API keys, tokens). Used as env vars in cloud tools.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "vault"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "skill",
+    "title": "Skill Loader",
+    "description": "Load SKILL.md body for a hosted skill. Returns full workflow/constraints/outputs.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "meta"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "task",
+    "title": "Sub-Agent",
+    "description": "Launch sub-agent (explore|general|scout). Foreground=stateless, background=task_id for polling.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "subagent",
+      "types": [
+        "explore",
+        "general",
+        "scout"
+      ]
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "todowrite",
+    "title": "Todo List",
+    "description": "Visible cloud session task list. Use for multi-step work; one in_progress at a time.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "ui"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "website_deploy",
+    "title": "Website Deploy",
+    "description": "Publish built static site to public URL. Requires user confirmation. Source_path uploaded as private ZIP.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "deploy",
+      "requires": "user_confirm"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "memory_read",
+    "title": "Memory Read",
+    "description": "Read main memory file (user or agent scope). Returns full content + summary + last-modified.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "memory"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "memory_append",
+    "title": "Memory Append",
+    "description": "Append markdown to MEMORY.md. scope=user requires reason. Use for new entries only.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "memory"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "memory_edit",
+    "title": "Memory Edit",
+    "description": "Find-replace on MEMORY.md. Fails on ambiguous/empty match. Use for targeted updates.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "memory"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "memory_summary_write",
+    "title": "Memory Summary Write",
+    "description": "Write MEMORY.md index/summary (max 4KB, 15 entries). Two-call confirm pattern.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "memory"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "memory_search",
+    "title": "Memory Search",
+    "description": "Case-insensitive substring search across MEMORY.md. Returns line numbers + context.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "memory"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "memory_topic_read",
+    "title": "Memory Topic Read",
+    "description": "Read a topic body (single coherent knowledge area, kebab-case name).",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "memory"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "memory_topic_create",
+    "title": "Memory Topic Create",
+    "description": "Create new topic. Fails if topic exists. Use for new knowledge areas.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "memory"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "memory_topic_edit",
+    "title": "Memory Topic Edit",
+    "description": "Targeted edit on topic body. Fails on ambiguous match. Use for incremental updates.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "memory"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "memory_topic_append",
+    "title": "Memory Topic Append",
+    "description": "Append content to topic body. 30KB total cap.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "memory"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "memory_topic_delete",
+    "title": "Memory Topic Delete",
+    "description": "Delete a topic. No-op if absent.",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "memory"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "file",
+    "category": "tool",
+    "name": "memory_topic_search",
+    "title": "Memory Topic Search",
+    "description": "LIKE-search across topic name+description+body. Returns matching topics (no body).",
+    "triggers": [],
+    "payload": {
+      "type": "native_fn",
+      "category": "memory"
+    },
+    "source": "native_function_definitions",
+    "status": "active",
+    "parent": "Mavis/tools"
+  },
+  {
+    "kind": "folder",
+    "category": null,
+    "name": "agents",
+    "title": "Agents — roster + sub-agents",
+    "description": "All agents Mavis can reach: 6 roster agents + 3 sub-agents + 1 root self.",
+    "triggers": [],
+    "payload": {},
+    "source": "self_inventory",
+    "status": "active",
+    "parent": "Mavis"
+  },
+  {
+    "kind": "file",
+    "category": "agent",
+    "name": "Mavis",
+    "title": "Mavis (root)",
+    "description": "Self — root session. Cloud sandbox Mavis M3. 18 native tools, 80+ skills, 6 roster agents, 3 sub-agents. Default model: claude-haiku-4-5.",
+    "triggers": [],
+    "payload": {
+      "type": "root_agent",
+      "session_id": "433004077547721",
+      "model": "claude-haiku-4-5",
+      "platform": "M3"
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/agents"
+  },
+  {
+    "kind": "file",
+    "category": "agent",
+    "name": "General",
+    "title": "General Agent",
+    "description": "Universal worker. Flexible adaptation, escalates to specialists.",
+    "triggers": [],
+    "payload": {
+      "type": "roster_agent",
+      "root_session_id": "404867019829345",
+      "template_id": "208823747665985"
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/agents"
+  },
+  {
+    "kind": "file",
+    "category": "agent",
+    "name": "Coder",
+    "title": "Coder Agent",
+    "description": "Hands-on software engineer. Reads code, writes code, ships code.",
+    "triggers": [],
+    "payload": {
+      "type": "roster_agent",
+      "root_session_id": "404867019829346",
+      "template_id": "208823747665986"
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/agents"
+  },
+  {
+    "kind": "file",
+    "category": "agent",
+    "name": "Verifier",
+    "title": "Verifier Agent",
+    "description": "Adversarial verification specialist. Tries to break deliverables before ship.",
+    "triggers": [],
+    "payload": {
+      "type": "roster_agent",
+      "root_session_id": "404867019829347",
+      "template_id": "208823747665987"
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/agents"
+  },
+  {
+    "kind": "file",
+    "category": "agent",
+    "name": "MaxClaw",
+    "title": "MaxClaw Agent",
+    "description": "Hands-on operator. Runs commands, executes code, manipulates files on remote systems. Reaches Mavis + Hermes via communicate.",
+    "triggers": [],
+    "payload": {
+      "type": "roster_agent",
+      "root_session_id": "419690516496665",
+      "tools": [
+        "capability 1",
+        "3",
+        "5",
+        "7"
+      ]
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/agents"
+  },
+  {
+    "kind": "file",
+    "category": "agent",
+    "name": "Hermes",
+    "title": "Hermes Agent",
+    "description": "Cross-agent coordinator. Bridges Mavis and external systems (web search, email, IM, API). Never invents facts; cites sources. Reaches MaxClaw for shell, Mavis for routing.",
+    "triggers": [],
+    "payload": {
+      "type": "roster_agent",
+      "root_session_id": "419691001540746",
+      "tools": [
+        "capability 1",
+        "3",
+        "5",
+        "7"
+      ]
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/agents"
+  },
+  {
+    "kind": "file",
+    "category": "agent",
+    "name": "Claude",
+    "title": "Claude Agent",
+    "description": "Acts as Mavis using Anthropic Claude as inference engine. French-first, action-first, no fluff. Reaches Mavis, MaxClaw, Hermes.",
+    "triggers": [],
+    "payload": {
+      "type": "roster_agent",
+      "root_session_id": "424042951970936",
+      "inference": "claude",
+      "language": "fr-first"
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/agents"
+  },
+  {
+    "kind": "file",
+    "category": "agent",
+    "name": "explore",
+    "title": "Explore Sub-Agent",
+    "description": "Read-only codebase exploration. Maps files, symbols, data flow, constraints. Best for unfamiliar areas, architecture, impact analysis.",
+    "triggers": [],
+    "payload": {
+      "type": "subagent",
+      "scope": "read_only"
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/agents"
+  },
+  {
+    "kind": "file",
+    "category": "agent",
+    "name": "scout",
+    "title": "Scout Sub-Agent",
+    "description": "Fast read-only reconnaissance. One narrow question, external docs, dependency behavior, upstream examples, quick confidence check.",
+    "triggers": [],
+    "payload": {
+      "type": "subagent",
+      "scope": "read_only"
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/agents"
+  },
+  {
+    "kind": "file",
+    "category": "agent",
+    "name": "general",
+    "title": "General Sub-Agent",
+    "description": "Bounded delegated task. Multiple steps, broader tool use. Self-contained execution with clear scope/output/constraints.",
+    "triggers": [],
+    "payload": {
+      "type": "subagent",
+      "scope": "writable"
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/agents"
+  },
+  {
+    "kind": "folder",
+    "category": null,
+    "name": "env",
+    "title": "Environment — software, CLIs, API keys",
+    "description": "All software installed, CLIs available, and API keys in vault. Note stale Supabase env refs.",
+    "triggers": [],
+    "payload": {},
+    "source": "self_inventory",
+    "status": "active",
+    "parent": "Mavis"
+  },
+  {
+    "kind": "folder",
+    "category": null,
+    "name": "software",
+    "title": "Software",
+    "description": "Programming languages, runtimes, CLIs installed in this sandbox.",
+    "triggers": [],
+    "payload": {},
+    "source": "self_inventory",
+    "status": "active",
+    "parent": "Mavis/env"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "python3",
+    "title": "Python 3.11.2",
+    "description": "Primary language. 3.11.2 in this sandbox (memory says 3.14, was wrong).",
+    "triggers": [],
+    "payload": {
+      "version": "3.11.2",
+      "key_modules": [
+        "playwright",
+        "pandas",
+        "numpy",
+        "lxml",
+        "openpyxl",
+        "python-docx",
+        "python-pptx",
+        "pypdf",
+        "pillow",
+        "cryptography"
+      ],
+      "missing": [
+        "openai",
+        "anthropic",
+        "requests",
+        "yaml",
+        "bs4",
+        "paramiko",
+        "httpx",
+        "supabase",
+        "tiktoken",
+        "fitz"
+      ]
+    },
+    "source": "env_discovery",
+    "status": "active",
+    "parent": "Mavis/env/software"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "node",
+    "title": "Node.js 22.19",
+    "description": "JS runtime (fallback). Symlinked to bun 1.4.0 so node calls actually run via bun.",
+    "triggers": [],
+    "payload": {
+      "version": "22.19.0",
+      "default_runtime": "bun 1.4.0"
+    },
+    "source": "env_discovery",
+    "status": "active",
+    "parent": "Mavis/env/software"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "bun",
+    "title": "Bun 1.4.0",
+    "description": "Default JS/TS runtime (Francis directive 2026-08-20). Native TS, faster than Node. symlinked as node/npm/bunx.",
+    "triggers": [],
+    "payload": {
+      "version": "1.4.0",
+      "binary": "/workspace/.home/.bun/bin/bun",
+      "use": "default for all JS/TS"
+    },
+    "source": "env_discovery",
+    "status": "active",
+    "parent": "Mavis/env/software"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "npm",
+    "title": "npm 10.9.3 (via bun)",
+    "description": "Symlinked to bun. `npm install` = `bun add` (much faster).",
+    "triggers": [],
+    "payload": {
+      "version": "10.9.3 (via bun)"
+    },
+    "source": "env_discovery",
+    "status": "active",
+    "parent": "Mavis/env/software"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "npx",
+    "title": "npx (via bun x wrapper)",
+    "description": "Shell wrapper that calls `bun x`. Auto-installs missing packages (real npx behavior).",
+    "triggers": [],
+    "payload": {
+      "script": "/usr/local/bin/npx",
+      "exec": "bun x \"$@\""
+    },
+    "source": "env_discovery",
+    "status": "active",
+    "parent": "Mavis/env/software"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "playwright",
+    "title": "Playwright 1.62.1",
+    "description": "Browser automation. 3 engines (chromium/firefox/webkit). Use via bunx --bun.",
+    "triggers": [],
+    "payload": {
+      "version": "1.62.1",
+      "engines": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ]
+    },
+    "source": "env_discovery",
+    "status": "active",
+    "parent": "Mavis/env/software"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "wrangler",
+    "title": "Wrangler 4.125.0 (Cloudflare)",
+    "description": "Cloudflare Workers/Pages/R2/D1/KV CLI. Auth OK on Fvegiard@outlook.com.",
+    "triggers": [],
+    "payload": {
+      "version": "4.125.0",
+      "auth": "CF_API_TOKEN (deprecated, use CLOUDFLARE_API_TOKEN)"
+    },
+    "source": "env_discovery",
+    "status": "active",
+    "parent": "Mavis/env/software"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "tailscale",
+    "title": "Tailscale 1.86.2 (CLI)",
+    "description": "Tailscale CLI installed (static binary). Daemon can't run in cloud sandbox.",
+    "triggers": [],
+    "payload": {
+      "version": "1.86.2",
+      "daemon": "NOT running (sandbox limitation)"
+    },
+    "source": "env_discovery",
+    "status": "active",
+    "parent": "Mavis/env/software"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "ripgrep",
+    "title": "ripgrep 13.0.0",
+    "description": "Fast content search. Backed by grep tool.",
+    "triggers": [],
+    "payload": {
+      "version": "13.0.0"
+    },
+    "source": "env_discovery",
+    "status": "active",
+    "parent": "Mavis/env/software"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "git",
+    "title": "git 2.39.5",
+    "description": "Version control.",
+    "triggers": [],
+    "payload": {
+      "version": "2.39.5"
+    },
+    "source": "env_discovery",
+    "status": "active",
+    "parent": "Mavis/env/software"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "jq",
+    "title": "jq 1.6",
+    "description": "JSON processor.",
+    "triggers": [],
+    "payload": {
+      "version": "1.6"
+    },
+    "source": "env_discovery",
+    "status": "active",
+    "parent": "Mavis/env/software"
+  },
+  {
+    "kind": "folder",
+    "category": null,
+    "name": "missing",
+    "title": "Missing tools",
+    "description": "Tools Francis expected but NOT installed. Re-install path noted for each.",
+    "triggers": [],
+    "payload": {},
+    "source": "self_inventory",
+    "status": "active",
+    "parent": "Mavis/env"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "bun",
+    "title": "bun",
+    "description": "preinstalled → installed 2026-08-20 via curl bun.sh/install",
+    "triggers": [],
+    "payload": {
+      "was": "preinstalled",
+      "now": "installed 2026-08-20 via curl bun.sh/install"
+    },
+    "source": "gap_analysis",
+    "status": "inactive",
+    "parent": "Mavis/env/missing"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "wrangler",
+    "title": "wrangler",
+    "description": "missing → installed 2026-08-20 via bun add -g wrangler",
+    "triggers": [],
+    "payload": {
+      "was": "missing",
+      "now": "installed 2026-08-20 via bun add -g wrangler"
+    },
+    "source": "gap_analysis",
+    "status": "inactive",
+    "parent": "Mavis/env/missing"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "tailscale",
+    "title": "tailscale",
+    "description": "missing → installed 2026-08-20 via static binary",
+    "triggers": [],
+    "payload": {
+      "was": "missing",
+      "now": "installed 2026-08-20 via static binary"
+    },
+    "source": "gap_analysis",
+    "status": "inactive",
+    "parent": "Mavis/env/missing"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "tmux",
+    "title": "tmux",
+    "description": "missing → still missing — can be installed if needed",
+    "triggers": [],
+    "payload": {
+      "was": "missing",
+      "now": "still missing — can be installed if needed"
+    },
+    "source": "gap_analysis",
+    "status": "inactive",
+    "parent": "Mavis/env/missing"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "docker",
+    "title": "docker",
+    "description": "missing → still missing — sandbox limitation",
+    "triggers": [],
+    "payload": {
+      "was": "missing",
+      "now": "still missing — sandbox limitation"
+    },
+    "source": "gap_analysis",
+    "status": "inactive",
+    "parent": "Mavis/env/missing"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "podman",
+    "title": "podman",
+    "description": "missing → still missing — sandbox limitation",
+    "triggers": [],
+    "payload": {
+      "was": "missing",
+      "now": "still missing — sandbox limitation"
+    },
+    "source": "gap_analysis",
+    "status": "inactive",
+    "parent": "Mavis/env/missing"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "claude",
+    "title": "claude",
+    "description": "in env CLAUDE_API_KEY → no claude binary in sandbox (CLI not installed)",
+    "triggers": [],
+    "payload": {
+      "was": "in env CLAUDE_API_KEY",
+      "now": "no claude binary in sandbox (CLI not installed)"
+    },
+    "source": "gap_analysis",
+    "status": "inactive",
+    "parent": "Mavis/env/missing"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "gh",
+    "title": "gh",
+    "description": "missing → still missing — GitHub CLI not installed",
+    "triggers": [],
+    "payload": {
+      "was": "missing",
+      "now": "still missing — GitHub CLI not installed"
+    },
+    "source": "gap_analysis",
+    "status": "inactive",
+    "parent": "Mavis/env/missing"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "deno",
+    "title": "deno",
+    "description": "missing → not installed",
+    "triggers": [],
+    "payload": {
+      "was": "missing",
+      "now": "not installed"
+    },
+    "source": "gap_analysis",
+    "status": "inactive",
+    "parent": "Mavis/env/missing"
+  },
+  {
+    "kind": "folder",
+    "category": null,
+    "name": "api_keys",
+    "title": "API Keys (in vault)",
+    "description": "All API keys/tokens. NO VALUES — just names + provider + description. Use `mavis secret list` to see actual.",
+    "triggers": [],
+    "payload": {},
+    "source": "self_inventory",
+    "status": "active",
+    "parent": "Mavis/env"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "ANTHROPIC_API_KEY",
+    "title": "ANTHROPIC_API_KEY",
+    "description": "Direct Anthropic API. Status: UNKNOWN (memory says dead, verify before use).",
+    "triggers": [],
+    "payload": {
+      "provider": "Anthropic"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "ANTHROPIC_OAUTH_TOKEN",
+    "title": "ANTHROPIC_OAUTH_TOKEN",
+    "description": "OAuth token. Primary auth for Mavis.",
+    "triggers": [],
+    "payload": {
+      "provider": "Anthropic"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "ANTHROPIC_OAUTH_TOKEN_BACKUP",
+    "title": "ANTHROPIC_OAUTH_TOKEN_BACKUP",
+    "description": "Backup OAuth token. Failover.",
+    "triggers": [],
+    "payload": {
+      "provider": "Anthropic"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "OPENAI_API_KEY_1",
+    "title": "OPENAI_API_KEY_1",
+    "description": "OpenAI API key #1.",
+    "triggers": [],
+    "payload": {
+      "provider": "OpenAI"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "OPENAI_API_KEY_2",
+    "title": "OPENAI_API_KEY_2",
+    "description": "OpenAI API key #2.",
+    "triggers": [],
+    "payload": {
+      "provider": "OpenAI"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "OPENAI_API_KEY_3",
+    "title": "OPENAI_API_KEY_3",
+    "description": "OpenAI API key #3.",
+    "triggers": [],
+    "payload": {
+      "provider": "OpenAI"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "OPENROUTER_API_KEY",
+    "title": "OPENROUTER_API_KEY",
+    "description": "OpenRouter — proxy to many models. Used for embeddings.",
+    "triggers": [],
+    "payload": {
+      "provider": "OpenRouter"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "DEEPSEEK_API_KEY",
+    "title": "DEEPSEEK_API_KEY",
+    "description": "DeepSeek inference.",
+    "triggers": [],
+    "payload": {
+      "provider": "DeepSeek"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "GEMINI_API_KEY_1",
+    "title": "GEMINI_API_KEY_1",
+    "description": "Gemini #1.",
+    "triggers": [],
+    "payload": {
+      "provider": "Google"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "GEMINI_API_KEY_2_PRO",
+    "title": "GEMINI_API_KEY_2_PRO",
+    "description": "Gemini Pro #2.",
+    "triggers": [],
+    "payload": {
+      "provider": "Google"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "GEMINI_API_KEY_3_GCP",
+    "title": "GEMINI_API_KEY_3_GCP",
+    "description": "Gemini GCP #3.",
+    "triggers": [],
+    "payload": {
+      "provider": "Google"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "GEMINI_API_KEY_ANTIGRAVITY",
+    "title": "GEMINI_API_KEY_ANTIGRAVITY",
+    "description": "Gemini Antigravity #4.",
+    "triggers": [],
+    "payload": {
+      "provider": "Google"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "GROK_API_KEY",
+    "title": "GROK_API_KEY",
+    "description": "Grok inference.",
+    "triggers": [],
+    "payload": {
+      "provider": "xAI"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "GROQ_API_KEY",
+    "title": "GROQ_API_KEY",
+    "description": "Groq fast inference.",
+    "triggers": [],
+    "payload": {
+      "provider": "Groq"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "HUGGINGFACE_TOKEN",
+    "title": "HUGGINGFACE_TOKEN",
+    "description": "HF token.",
+    "triggers": [],
+    "payload": {
+      "provider": "HuggingFace"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "NVIDIA_API_KEY_CLOUD",
+    "title": "NVIDIA_API_KEY_CLOUD",
+    "description": "NIM cloud.",
+    "triggers": [],
+    "payload": {
+      "provider": "NVIDIA"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "NVIDIA_API_KEY_PROD",
+    "title": "NVIDIA_API_KEY_PROD",
+    "description": "NIM prod.",
+    "triggers": [],
+    "payload": {
+      "provider": "NVIDIA"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "NVIDIA_API_KEY_TEST",
+    "title": "NVIDIA_API_KEY_TEST",
+    "description": "NIM test.",
+    "triggers": [],
+    "payload": {
+      "provider": "NVIDIA"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "OLLAMA_CLOUD_API_KEY",
+    "title": "OLLAMA_CLOUD_API_KEY",
+    "description": "Ollama Cloud.",
+    "triggers": [],
+    "payload": {
+      "provider": "Ollama"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "OLLAMA_CLOUD_KIMI_K3_KEY",
+    "title": "OLLAMA_CLOUD_KIMI_K3_KEY",
+    "description": "Ollama Kimi K3.",
+    "triggers": [],
+    "payload": {
+      "provider": "Ollama"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "OPENCODE_API_KEY",
+    "title": "OPENCODE_API_KEY",
+    "description": "OpenCode.",
+    "triggers": [],
+    "payload": {
+      "provider": "OpenCode"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "OPENCODE_GO_API_KEY",
+    "title": "OPENCODE_GO_API_KEY",
+    "description": "OpenCode Go.",
+    "triggers": [],
+    "payload": {
+      "provider": "OpenCode Go"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "BRAVE_SEARCH_API_KEY",
+    "title": "BRAVE_SEARCH_API_KEY",
+    "description": "Web search via Brave.",
+    "triggers": [],
+    "payload": {
+      "provider": "Brave"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "CF_API_TOKEN",
+    "title": "CF_API_TOKEN",
+    "description": "Account API token. Used for wrangler. Account: Fvegiard@outlook.com.",
+    "triggers": [],
+    "payload": {
+      "provider": "Cloudflare"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "CURSOR_API_KEY",
+    "title": "CURSOR_API_KEY",
+    "description": "Cursor Cloud Agent API.",
+    "triggers": [],
+    "payload": {
+      "provider": "Cursor"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "GITHUB_TOKEN",
+    "title": "GITHUB_TOKEN",
+    "description": "GitHub PAT #1.",
+    "triggers": [],
+    "payload": {
+      "provider": "GitHub"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "GITHUB_TOKEN_GEMINI",
+    "title": "GITHUB_TOKEN_GEMINI",
+    "description": "GitHub PAT for Gemini.",
+    "triggers": [],
+    "payload": {
+      "provider": "GitHub"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "GITHUB_TOKEN_HIGHLIGHT",
+    "title": "GITHUB_TOKEN_HIGHLIGHT",
+    "description": "GitHub PAT for Highlight.",
+    "triggers": [],
+    "payload": {
+      "provider": "GitHub"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "NETLIFY_TOKEN_PRIMARY",
+    "title": "NETLIFY_TOKEN_PRIMARY",
+    "description": "Netlify primary.",
+    "triggers": [],
+    "payload": {
+      "provider": "Netlify"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "NETLIFY_TOKEN_SECONDARY",
+    "title": "NETLIFY_TOKEN_SECONDARY",
+    "description": "Netlify secondary.",
+    "triggers": [],
+    "payload": {
+      "provider": "Netlify"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "R2_ACCESS_KEY_ID",
+    "title": "R2_ACCESS_KEY_ID",
+    "description": "R2 S3-compatible access key.",
+    "triggers": [],
+    "payload": {
+      "provider": "Cloudflare R2"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "R2_SECRET_ACCESS_KEY",
+    "title": "R2_SECRET_ACCESS_KEY",
+    "description": "R2 S3-compatible secret.",
+    "triggers": [],
+    "payload": {
+      "provider": "Cloudflare R2"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "SSH_PUBLIC_KEY_ED25519",
+    "title": "SSH_PUBLIC_KEY_ED25519",
+    "description": "Public key for SSH auth.",
+    "triggers": [],
+    "payload": {
+      "provider": "Tailscale/SSH"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "STITCH_API_KEY",
+    "title": "STITCH_API_KEY",
+    "description": "Stitch API.",
+    "triggers": [],
+    "payload": {
+      "provider": "Stitch"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "STITCH_ASSET_KEY",
+    "title": "STITCH_ASSET_KEY",
+    "description": "Stitch assets.",
+    "triggers": [],
+    "payload": {
+      "provider": "Stitch"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "SUPABASEMGMT_API_KEY",
+    "title": "SUPABASEMGMT_API_KEY",
+    "description": "Management API. Used for DDL/SQL on francis-production-core.",
+    "triggers": [],
+    "payload": {
+      "provider": "Supabase"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "SUPABASE_ANON_KEY",
+    "title": "SUPABASE_ANON_KEY",
+    "description": "Anon key. STALE — points to old beagwczwcraeefxkkcmq project.",
+    "triggers": [],
+    "payload": {
+      "provider": "Supabase"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "SUPABASE_EXPECTED_REF",
+    "title": "SUPABASE_EXPECTED_REF",
+    "description": "Expected project ref. STALE — actually tuwshovazpqzsvwnicgj.",
+    "triggers": [],
+    "payload": {
+      "provider": "Supabase"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "SUPABASE_PROJECT_KEY",
+    "title": "SUPABASE_PROJECT_KEY",
+    "description": "Supabase project key.",
+    "triggers": [],
+    "payload": {
+      "provider": "Supabase"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "SUPABASE_URL",
+    "title": "SUPABASE_URL",
+    "description": "Supabase URL. STALE — points to wrong project.",
+    "triggers": [],
+    "payload": {
+      "provider": "Supabase"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "TAILSCALE_AUTHKEY",
+    "title": "TAILSCALE_AUTHKEY",
+    "description": "Auth key. Expires 2026-09-25 (rotation cron exists).",
+    "triggers": [],
+    "payload": {
+      "provider": "Tailscale"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "TELEGRAM_BOT_TOKEN",
+    "title": "TELEGRAM_BOT_TOKEN",
+    "description": "Bot token. @MavisAgentBot, id 8683155181.",
+    "triggers": [],
+    "payload": {
+      "provider": "Telegram"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "TELEGRAM_BOT_USERNAME",
+    "title": "TELEGRAM_BOT_USERNAME",
+    "description": "Bot username.",
+    "triggers": [],
+    "payload": {
+      "provider": "Telegram"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "VIRUSTOTAL_API_KEY",
+    "title": "VIRUSTOTAL_API_KEY",
+    "description": "Security scanning.",
+    "triggers": [],
+    "payload": {
+      "provider": "VirusTotal"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "file",
+    "category": "env",
+    "name": "WARP2_API_KEY",
+    "title": "WARP2_API_KEY",
+    "description": "Warp2 API.",
+    "triggers": [],
+    "payload": {
+      "provider": "Warp2"
+    },
+    "source": "env_var",
+    "status": "active",
+    "parent": "Mavis/env/api_keys"
+  },
+  {
+    "kind": "folder",
+    "category": null,
+    "name": "crons",
+    "title": "Crons — scheduled tasks",
+    "description": "3 active scheduled tasks.",
+    "triggers": [],
+    "payload": {},
+    "source": "self_inventory",
+    "status": "active",
+    "parent": "Mavis"
+  },
+  {
+    "kind": "file",
+    "category": "cron",
+    "name": "jarvis-rag-daily-refresh",
+    "title": "Jarvis RAG Daily Refresh",
+    "description": "4am daily. Re-embeds mavis_knowledge, migrates from tasks/alerts/state, refreshes RAG cache.",
+    "triggers": [],
+    "payload": {
+      "schedule": "0 4 * * *",
+      "tz": "America/New_York",
+      "active_hours": [
+        "04:00",
+        "04:30"
+      ],
+      "task_id": "426132459557092"
+    },
+    "source": "mavis_cron_list",
+    "status": "active",
+    "parent": "Mavis/crons"
+  },
+  {
+    "kind": "file",
+    "category": "cron",
+    "name": "supabase-unpause-detector",
+    "title": "Supabase Unpause Detector",
+    "description": "Every 30 min. Detects when paused project comes back, runs audit, disables itself on resolution.",
+    "triggers": [],
+    "payload": {
+      "schedule": "*/30 * * * *",
+      "tz": "America/New_York",
+      "task_id": "420091670941895",
+      "state_file": "/workspace/.supabase_detector_state.json"
+    },
+    "source": "mavis_cron_list",
+    "status": "active",
+    "parent": "Mavis/crons"
+  },
+  {
+    "kind": "file",
+    "category": "cron",
+    "name": "tailscale-key-rotation-2026-09-25",
+    "title": "Tailscale Key Rotation Reminder",
+    "description": "Sept 26 2026 9am. Reminds Francis to rotate TAILSCALE_AUTHKEY. Self-disables after.",
+    "triggers": [],
+    "payload": {
+      "schedule": "0 9 26 9 *",
+      "tz": "America/New_York",
+      "task_id": "426215190323485",
+      "fire_date": "2026-09-26"
+    },
+    "source": "mavis_cron_list",
+    "status": "active",
+    "parent": "Mavis/crons"
+  },
+  {
+    "kind": "folder",
+    "category": null,
+    "name": "memory",
+    "title": "Memory — topics + main MEMORY",
+    "description": "Agent memory layout. Topics (single coherent areas) + main MEMORY.md index.",
+    "triggers": [],
+    "payload": {},
+    "source": "self_inventory",
+    "status": "active",
+    "parent": "Mavis"
+  },
+  {
+    "kind": "folder",
+    "category": null,
+    "name": "topics",
+    "title": "Memory topics",
+    "description": "Single coherent knowledge areas (kebab-case names). Loaded on demand via memory_topic_read.",
+    "triggers": [],
+    "payload": {},
+    "source": "self_inventory",
+    "status": "active",
+    "parent": "Mavis/memory"
+  },
+  {
+    "kind": "file",
+    "category": "memory",
+    "name": "bun-runtime",
+    "title": "bun-runtime",
+    "description": "bun + bunx preferred runtime. Install path, why we use it, bun-specific gotchas, bun.serve() WebSocket pattern, bunx as npx replacement.",
+    "triggers": [],
+    "payload": {},
+    "source": "memory_topic_index",
+    "status": "active",
+    "parent": "Mavis/memory/topics"
+  },
+  {
+    "kind": "file",
+    "category": "memory",
+    "name": "claude-desktop-setup",
+    "title": "claude-desktop-setup",
+    "description": "Claude Desktop Linux install + auth, supervised test plan, sandbox quirks.",
+    "triggers": [],
+    "payload": {},
+    "source": "memory_topic_index",
+    "status": "active",
+    "parent": "Mavis/memory/topics"
+  },
+  {
+    "kind": "file",
+    "category": "memory",
+    "name": "claude-oauth-pool",
+    "title": "claude-oauth-pool",
+    "description": "Claude API OAuth token pool unlock, model lineup, claude-call wrapper, ANTHROPIC_OAUTH_TOKEN failover chain.",
+    "triggers": [],
+    "payload": {},
+    "source": "memory_topic_index",
+    "status": "active",
+    "parent": "Mavis/memory/topics"
+  },
+  {
+    "kind": "file",
+    "category": "memory",
+    "name": "cursor-apis",
+    "title": "cursor-apis",
+    "description": "Cursor Cloud Agent API: auth, endpoints (spawn agent, bug review), model list, integration patterns, bug triage log.",
+    "triggers": [],
+    "payload": {},
+    "source": "memory_topic_index",
+    "status": "active",
+    "parent": "Mavis/memory/topics"
+  },
+  {
+    "kind": "file",
+    "category": "memory",
+    "name": "jarvis-stack",
+    "title": "jarvis-stack",
+    "description": "Jarvis v2.0 deployment, RAG layer, system prompt + Reflexion pattern, install scripts.",
+    "triggers": [],
+    "payload": {},
+    "source": "memory_topic_index",
+    "status": "active",
+    "parent": "Mavis/memory/topics"
+  },
+  {
+    "kind": "file",
+    "category": "memory",
+    "name": "mavis-platform",
+    "title": "mavis-platform",
+    "description": "Mavis M3 API, claw-anyllm, OpenAI-compatible, reasoning tags, litefuse hooks, agent teams.",
+    "triggers": [],
+    "payload": {},
+    "source": "memory_topic_index",
+    "status": "active",
+    "parent": "Mavis/memory/topics"
+  },
+  {
+    "kind": "file",
+    "category": "memory",
+    "name": "playwright-capabilities",
+    "title": "playwright-capabilities",
+    "description": "Full surface of Playwright 2026 — drive, extract, capture (screenshot/trace/HAR/PDF), multi-engine.",
+    "triggers": [],
+    "payload": {},
+    "source": "memory_topic_index",
+    "status": "active",
+    "parent": "Mavis/memory/topics"
+  },
+  {
+    "kind": "file",
+    "category": "memory",
+    "name": "pre-flight-protocol",
+    "title": "pre-flight-protocol",
+    "description": "PROTOCOLE OBLIGATOIRE au début de chaque conversation. Discovery upfront, vérif, puis exécution.",
+    "triggers": [],
+    "payload": {},
+    "source": "memory_topic_index",
+    "status": "active",
+    "parent": "Mavis/memory/topics"
+  },
+  {
+    "kind": "folder",
+    "category": null,
+    "name": "capabilities",
+    "title": "Capabilities — high-level what Mavis can do",
+    "description": "User-facing summary of major capabilities. Plain-language, not technical.",
+    "triggers": [],
+    "payload": {},
+    "source": "self_inventory",
+    "status": "active",
+    "parent": "Mavis"
+  },
+  {
+    "kind": "file",
+    "category": "capability",
+    "name": "llm_live",
+    "title": "Live LLM calls",
+    "description": "Call Anthropic, OpenAI, OpenRouter, Gemini, Grok, Groq, DeepSeek, NVIDIA, etc. live. Default model claude-haiku-4-5.",
+    "triggers": [],
+    "payload": {
+      "providers": 12
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/capabilities"
+  },
+  {
+    "kind": "file",
+    "category": "capability",
+    "name": "web_search_fetch",
+    "title": "Web search + fetch",
+    "description": "web_search (Brave-backed) + web_fetch (any URL with optional deep mode for captcha).",
+    "triggers": [],
+    "payload": {},
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/capabilities"
+  },
+  {
+    "kind": "file",
+    "category": "capability",
+    "name": "filesystem",
+    "title": "Filesystem within /workspace",
+    "description": "read/write/edit/glob/grep. PDFs/images/notebooks as native types. NO access outside /workspace.",
+    "triggers": [],
+    "payload": {
+      "scope": "/workspace",
+      "size_limit": null
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/capabilities"
+  },
+  {
+    "kind": "file",
+    "category": "capability",
+    "name": "browser_automation",
+    "title": "Browser automation",
+    "description": "Playwright 1.62.1 via bunx --bun. Chromium/Firefox/WebKit. Screenshots, traces, HAR, PDF.",
+    "triggers": [],
+    "payload": {},
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/capabilities"
+  },
+  {
+    "kind": "file",
+    "category": "capability",
+    "name": "supabase_ddl",
+    "title": "Supabase DDL (via mgmt API)",
+    "description": "Run SQL against francis-production-core via Supabase mgmt API. No direct psql (DNS blocked), but full DDL/DML through /v1/projects/{ref}/database/query.",
+    "triggers": [],
+    "payload": {
+      "api": "api.supabase.com /v1/projects/{ref}/database/query",
+      "ref": "tuwshovazpqzsvwnicgj"
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/capabilities"
+  },
+  {
+    "kind": "file",
+    "category": "capability",
+    "name": "cloudflare_deploy",
+    "title": "Cloudflare deploys",
+    "description": "wrangler CLI. Workers, Pages, R2, D1, KV. Auth OK on Fvegiard@outlook.com.",
+    "triggers": [],
+    "payload": {},
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/capabilities"
+  },
+  {
+    "kind": "file",
+    "category": "capability",
+    "name": "multi_agent",
+    "title": "Multi-agent orchestration",
+    "description": "team tool for adversarial producer/verifier plans. communicate for peer messaging. task for sub-agents (explore/general/scout).",
+    "triggers": [],
+    "payload": {},
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/capabilities"
+  },
+  {
+    "kind": "file",
+    "category": "capability",
+    "name": "memory_persistence",
+    "title": "Memory persistence",
+    "description": "MEMORY.md (user + agent scopes) + 8 topic files. Self-improving, search-friendly, cross-session.",
+    "triggers": [],
+    "payload": {},
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/capabilities"
+  },
+  {
+    "kind": "file",
+    "category": "capability",
+    "name": "static_site_publish",
+    "title": "Static site publish",
+    "description": "website_deploy tool → public URL. Requires user confirmation + no secrets in source.",
+    "triggers": [],
+    "payload": {
+      "requires": "user_confirm"
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/capabilities"
+  },
+  {
+    "kind": "file",
+    "category": "capability",
+    "name": "document_generation",
+    "title": "Document generation (PDF/DOCX/PPTX/XLSX)",
+    "description": "Native libs (python-docx, openpyxl, pypdf, python-pptx) + skills (minimax-*, pdf, docx, xlsx, pptx).",
+    "triggers": [],
+    "payload": {},
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/capabilities"
+  },
+  {
+    "kind": "file",
+    "category": "capability",
+    "name": "secrets_vault",
+    "title": "Secrets vault",
+    "description": "Encrypted API keys. Use as env vars in cloud tools. mavis secret list/create/update/delete.",
+    "triggers": [],
+    "payload": {},
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/capabilities"
+  },
+  {
+    "kind": "file",
+    "category": "capability",
+    "name": "cron_scheduling",
+    "title": "Cron scheduling",
+    "description": "Schedule future Agent turns. New session per fire OR root session. max_fires + active_hours for safety.",
+    "triggers": [],
+    "payload": {},
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/capabilities"
+  },
+  {
+    "kind": "file",
+    "category": "capability",
+    "name": "drive_storage",
+    "title": "Drive storage",
+    "description": "47+ nodes. UserUpload / AgentDeliverable / SystemGenerated. categories: documents/excel/ppt/images/videos/audio/other.",
+    "triggers": [],
+    "payload": {
+      "node_count": 47
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/capabilities"
+  },
+  {
+    "kind": "file",
+    "category": "capability",
+    "name": "peer_messaging",
+    "title": "Peer messaging",
+    "description": "communicate tool. send to existing peer OR spawn new Branch session.",
+    "triggers": [],
+    "payload": {},
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/capabilities"
+  },
+  {
+    "kind": "folder",
+    "category": null,
+    "name": "drive",
+    "title": "Drive — files/folders/websites",
+    "description": "User's storage in this Mavis account. 47+ nodes (mostly session folders).",
+    "triggers": [],
+    "payload": {},
+    "source": "self_inventory",
+    "status": "active",
+    "parent": "Mavis"
+  },
+  {
+    "kind": "file",
+    "category": "drive",
+    "name": "index",
+    "title": "Drive Index",
+    "description": "47 nodes total, mostly session folders. Query via mavis({command: 'drive files list'}).",
+    "triggers": [],
+    "payload": {
+      "total": 47,
+      "note": "mostly session folders"
+    },
+    "source": "system",
+    "status": "active",
+    "parent": "Mavis/drive"
+  }
+]
