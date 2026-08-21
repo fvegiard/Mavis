@@ -20,7 +20,8 @@ Subcommands:
   mavis config             show mavis.json config
   mavis skills-rag         semantic skill search
 """
-import argparse, json, os, re, sys, subprocess, urllib.request, urllib.error
+import argparse, json, os, re, sys, subprocess, threading, time, queue, select, shutil, signal
+import urllib.request, urllib.error
 from pathlib import Path
 
 # ============================================================
@@ -263,6 +264,78 @@ def cmd_skills(args):
         print(f"\n{matches} skills matching '{q}' (out of {len(res)})\n")
     else:
         print(f"\n{len(res)} skills + capabilities total\n")
+
+def cmd_db(args):
+    """Convenience wrapper around Supabase mgmt API. mavis db <action> [args]
+    Actions: tables, schema <table>, count <table>, sql '<query>', project, regions
+    """
+    subcmd = getattr(args, 'subcmd', None)
+    if not subcmd:
+        print("Usage: mavis db <tables|schema|count|sql|project> [args]")
+        print("  mavis db tables                 list all tables in mavis schema")
+        print("  mavis db schema <table>         describe table columns + indexes")
+        print("  mavis db count <table>          count rows in table")
+        print("  mavis db sql '<query>'          run raw SQL (use carefully)")
+        print("  mavis db project                show project info")
+        return
+    if subcmd == 'tables':
+        r = run_sql("SELECT table_name, table_type FROM information_schema.tables WHERE table_schema = 'mavis' ORDER BY table_name")
+        if not isinstance(r, list): print(f"ERROR: {r}"); return
+        print(f"\n{'Table':<25} {'Type'}")
+        print("-" * 40)
+        for t in r:
+            print(f"  {t.get('table_name','?'):<23} {t.get('table_type','?')}")
+        print(f"\n{len(r)} tables in mavis schema\n")
+    elif subcmd == 'schema':
+        table = args.table
+        r = run_sql(f"SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE table_schema = 'mavis' AND table_name = '{table}' ORDER BY ordinal_position")
+        if not isinstance(r, list): print(f"ERROR: {r}"); return
+        print(f"\n=== {table} ===")
+        print(f"{'Column':<25} {'Type':<20} {'Nullable'}")
+        print("-" * 55)
+        for c in r:
+            print(f"  {c.get('column_name','?'):<23} {c.get('data_type','?'):<18} {c.get('is_nullable','?')}")
+        # Indexes
+        r2 = run_sql(f"SELECT indexname, indexdef FROM pg_indexes WHERE schemaname='mavis' AND tablename='{table}' ORDER BY indexname")
+        if isinstance(r2, list) and r2:
+            print(f"\n{'Index':<35} {'Definition'}")
+            print("-" * 80)
+            for i in r2:
+                print(f"  {i.get('indexname','?'):<33} {i.get('indexdef','')[:70]}")
+        print()
+    elif subcmd == 'count':
+        table = args.table
+        r = run_sql(f"SELECT count(*) as n FROM mavis.{table}")
+        if not isinstance(r, list): print(f"ERROR: {r}"); return
+        print(f"  mavis.{table}: {r[0].get('n','?')} rows\n")
+    elif subcmd == 'sql':
+        q = ' '.join(args.query) if args.query else ''
+        if not q: print("ERROR: no query"); return
+        r = run_sql(q)
+        if isinstance(r, list):
+            print(json.dumps(r, indent=2, ensure_ascii=False)[:2000])
+        else:
+            print(r)
+    elif subcmd == 'project':
+        import urllib.request
+        try:
+            req = urllib.request.Request(
+                f"https://api.supabase.com/v1/projects/{REF}",
+                headers={"Authorization": "Bearer " + (SUPABASE_KEY or "")})
+            with urllib.request.urlopen(req, timeout=10) as r:
+                d = json.loads(r.read().decode())
+            print(f"\n=== Supabase project ===")
+            print(f"  ref:     {d.get('ref','?')}")
+            print(f"  name:    {d.get('name','?')}")
+            print(f"  region:  {d.get('region','?')}")
+            print(f"  status:  {d.get('status','?')}")
+            print(f"  pg ver:  {d.get('database',{}).get('version','?')}")
+            print(f"  org:     {d.get('organization_slug','?')}")
+            print(f"  created: {d.get('created_at','?')}\n")
+        except Exception as e:
+            print(f"ERROR: {e}")
+    else:
+        print(f"ERROR: unknown subcmd '{subcmd}'")
 
 def cmd_modes(args):
     """List available modes."""
@@ -531,6 +604,39 @@ def cmd_team(args):
     print(r.stdout[-3000:] if len(r.stdout) > 3000 else r.stdout)
     if r.returncode != 0: print(f"ERR: {r.stderr[:300]}")
 
+def cmd_upgrade(args):
+    """Check if a newer mavis CLI is available on fvegiard/Mavis."""
+    print("mavis upgrade check\n")
+    # Get current commit
+    try:
+        r = subprocess.run(["git", "-C", str(SCRIPT_DIR.parent), "rev-parse", "HEAD"], capture_output=True, text=True, timeout=5)
+        current = r.stdout.strip() if r.returncode == 0 else "unknown"
+        print(f"  Local commit:  {current[:12]}")
+    except:
+        current = "unknown"
+    # Get latest from remote
+    try:
+        r = subprocess.run(["git", "-C", str(SCRIPT_DIR.parent), "ls-remote", "origin", "main"], capture_output=True, text=True, timeout=10,
+                          env={**os.environ, "GIT_SSL_NO_VERIFY": "true"})
+        if r.returncode == 0:
+            latest = r.stdout.split()[0]
+            print(f"  Remote commit: {latest[:12]}")
+            if current != "unknown" and current != latest:
+                print(f"\n  ⚠️  Update available. Run: mavis upgrade apply")
+                # Show what's new (git log)
+                r2 = subprocess.run(["git", "-C", str(SCRIPT_DIR.parent), "log", "--oneline", f"{current[:12]}..{latest[:12]}"],
+                                   capture_output=True, text=True, timeout=5)
+                if r2.stdout.strip():
+                    print("\n  Changes:")
+                    for line in r2.stdout.strip().split("\n")[:10]:
+                        print(f"    {line}")
+            elif current == latest:
+                print(f"\n  ✅ Already up to date")
+        else:
+            print(f"  Remote: unreachable ({r.stderr[:100]})")
+    except Exception as e:
+        print(f"  Remote: error ({e})")
+
 def cmd_config_show(args):
     """Show mavis.json config (kilo.json-inspired)."""
     cfg_path = SCRIPT_DIR / "config" / "mavis.json"
@@ -594,6 +700,62 @@ def cmd_config_set(args):
     cfg_path.write_text(json.dumps(cfg, indent=2))
     print(f"✅ Set {path} = {json.dumps(val)}")
     print(f"   Backup: {bak}")
+
+def cmd_export(args):
+    """Export mavis CLI state (config + agents + skills) to a JSON file."""
+    out = {
+        "version": "1.2",
+        "exported_at": __import__('datetime').datetime.utcnow().isoformat() + "Z",
+        "config": json.loads((SCRIPT_DIR / "config" / "mavis.json").read_text()) if (SCRIPT_DIR / "config" / "mavis.json").exists() else None,
+        "agents": {},
+    }
+    if AGENTS_DIR.exists():
+        for f in AGENTS_DIR.glob("*.md"):
+            out["agents"][f.stem] = f.read_text()
+    # Skills summary
+    sm_path = SCRIPT_DIR.parent / "mavis-skills" / "skill_summaries.json"
+    if sm_path.exists():
+        out["skill_summaries"] = json.loads(sm_path.read_text())
+    # Stats
+    if STATS_FILE.exists():
+        out["stats"] = [json.loads(line) for line in STATS_FILE.read_text().splitlines() if line.strip()]
+    # MCP registry
+    mr_path = Path(os.environ.get('HOME','/root')) / ".mavis" / "mcp_servers.json"
+    if mr_path.exists():
+        out["mcp_servers"] = json.loads(mr_path.read_text())
+    target = args.output or f"mavis-export-{__import__('datetime').datetime.utcnow().strftime('%Y%m%d-%H%M%S')}.json"
+    Path(target).write_text(json.dumps(out, indent=2, ensure_ascii=False))
+    print(f"✅ Exported to {target}")
+    print(f"   config: {bool(out.get('config'))}")
+    print(f"   agents: {len(out.get('agents',{}))}")
+    print(f"   skill_summaries: {len(out.get('skill_summaries',{}))}")
+    print(f"   stats entries: {len(out.get('stats',[]))}")
+    print(f"   mcp_servers: {len(out.get('mcp_servers',{}))}")
+    print(f"   file size: {len(json.dumps(out)):,} bytes")
+
+def cmd_import(args):
+    """Import mavis CLI state from a JSON file. Usage: mavis import <file>"""
+    src = Path(args.file)
+    if not src.exists():
+        print(f"ERROR: {src} not found"); return
+    data = json.loads(src.read_text())
+    print(f"Importing from {src} (version {data.get('version','?')})")
+    if data.get('config'):
+        (SCRIPT_DIR / "config" / "mavis.json").write_text(json.dumps(data['config'], indent=2))
+        print(f"  ✅ config restored")
+    if data.get('agents'):
+        AGENTS_DIR.mkdir(parents=True, exist_ok=True)
+        for name, body in data['agents'].items():
+            (AGENTS_DIR / f"{name}.md").write_text(body)
+        print(f"  ✅ {len(data['agents'])} agents restored")
+    if data.get('skill_summaries'):
+        sm_path = SCRIPT_DIR.parent / "mavis-skills" / "skill_summaries.json"
+        sm_path.write_text(json.dumps(data['skill_summaries'], indent=2))
+        print(f"  ✅ skill_summaries restored")
+    # Reload agents
+    global MD_AGENTS
+    MD_AGENTS = load_md_agents()
+    print(f"  Agents reloaded: {len(MD_AGENTS)}")
 
 def cmd_models(args):
     """List models from mavis.json. Optionally filter by provider."""
@@ -751,6 +913,10 @@ See also: mavis-swarm, mavis-swarm-llm (in /usr/local/bin/).
     ss.add_argument('--model', default='moonshotai/kimi-k3')
     ss.add_argument('--mode', default='orchestrator')
     sub.add_parser('mcp', help='List/manage MCP servers')
+    sdb = sub.add_parser('db', help='Supabase mgmt API wrapper')
+    sdb.add_argument('subcmd', help='tables|schema|count|sql|project')
+    sdb.add_argument('table', nargs='?', help='Table name (for schema/count)')
+    sdb.add_argument('query', nargs='*', help='Raw SQL (for sql)')
     sub.add_parser('agents', help='List .md custom agents (Kilo format)')
     sa = sub.add_parser('agent', help='Manage .md agents')
     sa.add_argument('subcmd', nargs='?', default='list', help='list | new | edit')
@@ -774,6 +940,11 @@ See also: mavis-swarm, mavis-swarm-llm (in /usr/local/bin/).
     sm = sub.add_parser('models', help='List available models from mavis.json')
     sm.add_argument('provider', nargs='?', help='Filter by provider ID (e.g. openrouter)')
     sub.add_parser('stats', help='Aggregate token usage + cost from stats.jsonl')
+    sub.add_parser('upgrade', help='Check for newer mavis CLI version')
+    sex = sub.add_parser('export', help='Export mavis CLI state to JSON')
+    sex.add_argument('-o', '--output', help='Output file (default: mavis-export-TIMESTAMP.json)')
+    sim = sub.add_parser('import', help='Import mavis CLI state from JSON')
+    sim.add_argument('file', help='Input file')
     sat = sub.add_parser('attach', help='Connect to a running mavis serve (REPL)')
     sat.add_argument('url', help='URL of the mavis server (e.g. http://localhost:7741)')
 
@@ -791,8 +962,9 @@ See also: mavis-swarm, mavis-swarm-llm (in /usr/local/bin/).
     dispatch = {
         'provider': cmd_provider_list, 'skills': cmd_skills, 'modes': cmd_modes,
         'run': cmd_run, 'skills-rag': cmd_skills_rag, 'serve': cmd_serve,
-        'mcp': cmd_mcp, 'agents': cmd_agent_list, 'session': cmd_session_list,
+        'mcp': cmd_mcp, 'db': cmd_db, 'agents': cmd_agent_list, 'session': cmd_session_list,
         'team': cmd_team, 'models': cmd_models, 'stats': cmd_stats, 'attach': cmd_attach,
+        'upgrade': cmd_upgrade, 'export': cmd_export, 'import': cmd_import,
     }
     # Sub-action dispatch for agent
     if args.cmd == 'agent':
